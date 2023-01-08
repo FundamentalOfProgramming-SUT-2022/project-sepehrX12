@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 char *ADD = "F:\\Uni\\Fop\\Project";
+char *ADDclip = "F:\\Uni\\Fop\\Project\\clipboard.txt";
 
 
 char *appendAddress(char str1[], char str2[]) {
@@ -519,10 +520,145 @@ void remve() {
 
 }
 
-
-
 void copy() {
 
+    char size[30];
+    char pos[30];
+    int lno;
+    int strt;
+    int sizei;
+    char fb;
+    char address[200];
+    char text[10000];
+    int cnt = 0;
+    char c = 0;
+    scanf("%c",&c);
+    if (c == '"'){
+        scanf("%c",&c);
+        while(c != '"'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    else{
+        while(c != ' '){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+
+    scanf("%s ",pos);
+    if (strcmp(pos , "--pos") == 0){
+        scanf("%d:%d" , &lno,&strt);
+        scanf("%s ",size);
+        if (strcmp(size , "-size") == 0) {
+            scanf("%d", &sizei);
+            scanf(" -%c" , &fb);
+            if (fb == 'f'){
+                FILE *fp;
+                fp = fopen(address, "r+");
+                if (fp == NULL){
+                    printf("File does not exist\n");
+                    fclose(fp);
+                }
+                else{
+                    int line1 = 1;
+                    int start1 = -1;
+                    int count = 0;
+                    while ((c = (char)fgetc(fp)) != EOF){
+                        start1++;
+                        if (start1 == strt && lno == line1){
+                            for (int i=0 ; i<sizei ; i++){
+                                text[count] = c;
+                                count++;
+                                c = (char)fgetc(fp);
+                            }
+                            continue;
+                        }
+                        if (c == '\n'){
+                            line1++;
+                            start1 = -1;
+                        }
+
+                    }
+                    text[count] = EOF;
+                    fclose(fp);
+
+                    FILE *clip;
+                    clip = fopen(ADDclip, "w");
+                    int i = 0;
+                    while (text[i] != EOF){
+                        fprintf(clip,"%c",text[i]);
+                        i++;
+                    }
+                    fclose(clip);
+                }
+
+            }
+            else if(fb == 'b'){
+                FILE *fp;
+                fp = fopen(address, "r+");
+                if (fp == NULL){
+                    printf("File does not exist\n");
+                    fclose(fp);
+                }
+                else{
+                    int line1 = 1;
+                    int start1 = -1;
+                    int count = 0;
+                    int ii;
+                    while ((c = (char)fgetc(fp)) != EOF){
+                        start1++;
+                        text[count] = c;
+                        if (start1 == strt && line1 == lno){
+                            ii = count;
+                        }
+                        if (c == '\n'){
+                            line1++;
+                            start1 = -1;
+                        }
+                        count++;
+                    }
+
+                    text[count] = EOF;
+                    fclose(fp);
+
+                    FILE *fil;
+                    fil = fopen(ADDclip, "w");
+                    int i = -1;
+                    start1 = -1;
+                    line1 = 1;
+                    while (text[++i] != EOF){
+
+                        if ((i >= (ii-sizei)+1) && (i <= ii)){
+                            fprintf(fil,"%c",text[i]);
+                        }
+                    }
+                    fclose(fil);
+                }
+            }
+
+            else{
+                printf("Invalid arguments\n");
+            }
+        }
+        else{
+            printf("Invalid arguments\n");
+        }
+    }
+    else{
+        printf("Invalid arguments\n");
+    }
 }
 
 int command(char list[]) {
@@ -549,6 +685,11 @@ int command(char list[]) {
     if (strcmp(list, "removestr") == 0) {
 
         return 4;
+    }
+
+    if (strcmp(list, "copystr") == 0) {
+
+        return 5;
     }
 
 
@@ -640,8 +781,6 @@ int main() {
             }
         }
 
-
-
         if (com == 3){
             char dum;
             char file[30];
@@ -678,6 +817,24 @@ int main() {
                 printf("Invalid command\n");
             }
         }
+
+        if (com == 5) {
+            char dum;
+            char file[30];
+            scanf("%s", file);
+            scanf("%c", &dum);
+            if (strcmp(file, "--file") == 0) {
+                copy();
+
+            } else {
+                char c = 0;
+                while (c != '\n') {
+                    scanf("%c", &c);
+                }
+                printf("Invalid command\n");
+            }
+        }
+
     }
 
     return 0;
