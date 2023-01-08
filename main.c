@@ -103,6 +103,7 @@ int insert() {
     int strt;
     char address[200];
     char text[5000] = {0};
+    char textNew[10000];
     int cnt = 0;
     char c = 0;
     int cond = 0;
@@ -194,36 +195,57 @@ int insert() {
                         fclose(fp);
                         return -1;
                     }
-                    for (int i=0 ; i<lno-1 ; i++){
-                        fprintf(fp , "%c",'\n');
-                    }
-                    for (int i=0 ; i<strt ; i++){
-                        fprintf(fp , "%c",' ');
-                    }
-                    int count = 0;
-                    while (text[count] != 0 && text[count] != EOF && text[count] != '\0'){
 
-                        if (text[count] == 92 && text[count+1] == 'n'){
-                            count++;
-                            fprintf(fp , "%c",'\n');
-                            count++;
+                    int start1 = -1;
+                    int line1 = 1;
+                    int ii=0;
+                    int j=0;
+                    while((textNew[j] = (char)fgetc(fp)) != EOF){
+                        start1++;
+                        if (start1 == strt && lno == line1){
+                            ii=j;
                         }
-                        else if(text[count] == 92 && text[count+1] == 92){
-                            count++;
-                            fprintf(fp , "%c", text[count]);
-                            count++;
+                        if (textNew[j] == '\n'){
+                            line1++;
+                            start1 = -1;
                         }
-                        else{
-                            fprintf(fp , "%c",text[count]);
-                            //printf("%c",text[count]);
-                            count++;
-                        }
-
+                        j++;
                     }
-
-
-
+                    textNew[j] = EOF;
                     fclose(fp);
+                    remove(address);
+
+                    FILE *f;
+                    f = fopen(address, "w");
+                    int i = 0;
+                    while ((textNew[i]) != EOF){
+                        if (i == ii){
+                            int count = 0;
+                            while (text[count] != 0 && text[count] != EOF && text[count] != '\0'){
+
+                                if (text[count] == 92 && text[count+1] == 'n'){
+                                    count++;
+                                    fprintf(f , "%c",'\n');
+                                    count++;
+                                }
+                                else if(text[count] == 92 && text[count+1] == 92){
+                                    count++;
+                                    fprintf(f , "%c", text[count]);
+                                    count++;
+                                }
+                                else{
+                                    fprintf(f , "%c",text[count]);
+                                    //printf("%c",text[count]);
+                                    count++;
+                                }
+
+                            }
+
+                        }
+                        fprintf(f , "%c",textNew[i]);
+                        i++;
+                    }
+                    fclose(f);
                     return 1;
                 }
             }
@@ -242,31 +264,55 @@ int insert() {
                     fclose(fp);
                     return -1;
                 }
-                for (int i=0 ; i<lno-1 ; i++){
-                    fprintf(fp , "%c",'\n');
-                }
-                for (int i=0 ; i<strt ; i++){
-                    fprintf(fp , "%c",' ');
-                }
-                int count = 0;
-                while (text[count] != 0 && text[count] != EOF && text[count] != '\0'){
-                    if (text[count] == 92 && text[count+1] == 'n'){
-                        count++;
-                        fprintf(fp , "%c",'\n');
-                        count++;
+                int start1 = -1;
+                int line1 = 1;
+                int ii=0;
+                int j=0;
+                while((textNew[j] = (char)fgetc(fp)) != EOF){
+                    start1++;
+                    if (start1 == strt && lno == line1){
+                        ii=j;
                     }
-                    else if(text[count] == 92 && text[count+1] == 92){
-                        count++;
-                        fprintf(fp , "%c", text[count]);
-                        count++;
+                    if (textNew[j] == '\n'){
+                        line1++;
+                        start1 = -1;
                     }
-                    else{
-                        fprintf(fp , "%c",text[count]);
-                        //printf("%c",text[count]);
-                        count++;
-                    }
+                    j++;
                 }
+                textNew[j] = EOF;
                 fclose(fp);
+                remove(address);
+
+                FILE *f;
+                f = fopen(address, "w");
+                int i = 0;
+                while (textNew[i] != EOF){
+                    if (i == ii){
+                        int count = 0;
+                        while (text[count] != 0 && text[count] != EOF && text[count] != '\0'){
+                            if (text[count] == 92 && text[count+1] == 'n'){
+                                count++;
+                                fprintf(f , "%c",'\n');
+                                count++;
+                            }
+                            else if(text[count] == 92 && text[count+1] == 92){
+                                count++;
+                                fprintf(f , "%c", text[count]);
+                                count++;
+                            }
+                            else{
+                                fprintf(f , "%c",text[count]);
+                                //printf("%c",text[count]);
+                                count++;
+                            }
+                        }
+                    }
+
+                    fprintf(f , "%c",textNew[i]);
+                    i++;
+                }
+
+                fclose(f);
                 return 1;
             }
         }
