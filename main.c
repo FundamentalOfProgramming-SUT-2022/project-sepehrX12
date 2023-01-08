@@ -278,7 +278,53 @@ int insert() {
 
 }
 
-void cat() {
+void cat(char list[]) {
+    char address[200];
+    int cnt = 0;
+    int cnt1 = 0;
+    if (list[cnt] == '"'){
+        cnt++;
+        while(list[cnt] != '"'){
+            if (list[cnt] == '/'){
+                list[cnt] = '\\';
+            }
+            address[cnt1] = list[cnt];
+            cnt1++;
+            cnt++;
+
+        }
+        //printf("%s\n",address);
+        strcpy(address , appendAddress(ADD , address));
+        //printf("%s",address);
+    }
+    else{
+        while(list[cnt] != ' ' && list[cnt] != 0 && list[cnt] != EOF && list[cnt] != '\n' ){
+            if (list[cnt] == '/'){
+                list[cnt] = '\\';
+            }
+            address[cnt1] = list[cnt];
+            cnt1++;
+            cnt++;
+            //printf("%c",address[cnt1-1]);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    printf("%s\n",address);
+    FILE *fp;
+    fp = fopen(address, "r");
+    if (fp == NULL){
+        printf("File does not exist\n");
+    }
+    else{
+        char c;
+        fscanf(fp , "%c",&c);
+        while(c != EOF){
+            printf("%c",c);
+            c = (char)fgetc(fp);
+        }
+        printf("\n");
+        fclose(fp);
+    }
 
 }
 
@@ -315,6 +361,11 @@ int command(char list[]) {
     if (strcmp(list, "insertstr") == 0) {
 
         return 2;
+    }
+
+    if (strcmp(list, "cat") == 0) {
+
+        return 3;
     }
 
 
@@ -404,6 +455,30 @@ int main() {
                 }
                 printf("Invalid command\n");
             }
+        }
+
+
+
+        if (com == 3){
+            char dum;
+            char file[30];
+            char address[200];
+            scanf("%s", file);
+            scanf("%c", &dum);
+            //printf("%s",address);
+            if (strcmp(file, "--file") == 0) {
+                fgets(address, 200, stdin);
+                //printf("%s\n",address);
+                cat(address);
+            } else {
+                char c = 0;
+                while (c != '\n') {
+                    scanf("%c", &c);
+                }
+                printf("Invalid command\n");
+            }
+
+
         }
     }
 
