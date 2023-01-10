@@ -1080,10 +1080,16 @@ int find(){
                             int res;
                             int y=0;
                             char memo[1000];
+                            char hfile[10000];
                             int word = 0;
                             int word1 =0;
                             int u=0;
+                            int hcnt = 0;
                             while((c = (char)fgetc(fp)) != EOF){
+                                hfile[hcnt]=c;
+                                hcnt++;
+                            }
+                            while((c = hfile[cnt1-1]) != 0 && (c = hfile[cnt1-1]) != '\0'){
                                 if (c == ' ' || c == '\n'){
                                     word++;
                                 }
@@ -2180,6 +2186,447 @@ int find(){
     return -1;
 }
 
+void replace(){
+    char address[200];
+    char str1[10000];
+    char str2[10000];
+    char st[30];
+    char file[30];
+    int cnt = 0;
+    char c = 0;
+    int cond = 0;
+    int mode = 0;
+    char all[30];
+    char mod[30];
+
+
+    scanf("%c",&c);
+    if (c == '"'){
+        char c1;
+        scanf("%c",&c);
+        while(c!='"') {
+
+            if (cnt == 0 && c=='*'){
+                cond = 1;
+                scanf("%c",&c);
+            }
+            else if (c == '*'){
+                cond = 2;
+                scanf("%c", &c);
+                continue;
+            }
+
+            if (c == 92) {
+                scanf("%c", &c1);
+                if (c1 == '*' || c1 == '"') {
+                    str1[cnt] = c1;
+                    cnt++;
+                    scanf("%c", &c);
+                } else {
+                    str1[cnt] = c;
+                    cnt++;
+                    str1[cnt] = c1;
+                    cnt++;
+                    scanf("%c", &c);
+                }
+            } else {
+                str1[cnt] = c;
+                cnt++;
+                scanf("%c", &c);
+            }
+        }
+    }
+
+    if (c != '"') {
+        char c1;
+        while (c != ' ') {
+            if (cnt == 0 && c=='*'){
+                cond = 1;
+                scanf("%c",&c);
+            }
+            else if (c == '*'){
+                cond = 2;
+                scanf("%c", &c);
+                continue;
+            }
+            if (c == 92) {
+                scanf("%c", &c1);
+                if (c1 == '*') {
+                    str1[cnt] = c1;
+                    cnt++;
+                } else {
+                    str1[cnt] = c;
+                    cnt++;
+                    str1[cnt] = c1;
+                    cnt++;
+                    scanf("%c", &c);
+                }
+            } else {
+                //printf("%c",c);
+                str1[cnt] = c;
+                cnt++;
+                scanf("%c", &c);
+            }
+
+        }
+
+    }
+
+
+    scanf("%s ", st);
+    cnt=0;
+    if (strcmp(st , "--str2")==0){
+        scanf("%c",&c);
+        if (c == '"'){
+            char c1;
+            scanf("%c",&c);
+            while(c!='"') {
+                if (c == 92) {
+                    scanf("%c", &c1);
+                    if (c1 == '"') {
+                        str2[cnt] = c1;
+                        cnt++;
+                        scanf("%c", &c);
+                    } else {
+                        str2[cnt] = c;
+                        cnt++;
+                        str2[cnt] = c1;
+                        cnt++;
+                        scanf("%c", &c);
+                    }
+                } else {
+                    str2[cnt] = c;
+                    cnt++;
+                    scanf("%c", &c);
+                }
+            }
+        }
+
+        if (c != '"') {
+            char c1;
+            while (c != ' ') {
+                str2[cnt] = c;
+                cnt++;
+                scanf("%c", &c);
+            }
+
+        }
+
+        scanf("%s ",file);
+        if (strcmp(file , "--file")==0){
+
+            cnt = 0;
+            scanf("%c",&c);
+            if (c == '"'){
+                scanf("%c",&c);
+                while(c != '"'){
+                    if (c == '/'){
+                        c = '\\';
+                    }
+                    address[cnt] = c;
+                    cnt++;
+                    scanf("%c",&c);
+                }
+                scanf("%c",&c);
+                strcpy(address , appendAddress(ADD , address));
+            }
+            else{
+                while(c != ' ' && c != '\n'){
+                    if (c == '/'){
+                        c = '\\';
+                    }
+                    address[cnt] = c;
+                    cnt++;
+                    scanf("%c",&c);
+                }
+                strcpy(address , appendAddress(ADD , address));
+            }
+
+            FILE *fp;
+            fp = fopen(address, "r+");
+            if (fp == NULL){
+                printf("File does not exist\n");
+                fclose(fp);
+            }
+            else{
+                if (c == '\n'){
+                    int count=0;
+                    char htext[10000];
+                    while ((htext[count]=(char)fgetc(fp)) != EOF){
+                        count++;
+                    }
+                    fclose(fp);
+
+                    count = 0;
+                    int counts = 0;
+                    int size = 0;
+                    int index = 0;
+                    int true = 0;
+                    int init = 0;
+                    int u =0;
+                    while (htext[count] != 0 && htext[count] != '\0' && true == 0){
+                        if (htext[count] == str1[0]){
+                            init = count;
+                            while (htext[count] == str1[counts]){
+                                if (str1[counts+1] == 0 || str1[counts+1] == '\0'){
+                                    if (cond == 0){
+                                        index = init;
+                                        size = counts;
+                                        true = 1;
+                                        break;
+                                    }
+                                    else if(cond == 1){
+                                        u = count;
+                                        count = init;
+                                        while(htext[count] != ' ' && htext[count] != '\n' && count >= 0){
+                                            count--;
+                                        }
+                                        index = count+1;
+                                        size = u-count-1;
+                                        true = 1;
+                                        break;
+                                    }
+
+                                    else if(cond == 2){
+                                        u = count;
+                                        while(htext[count] != ' ' && htext[count] != '\n' && htext[count] != 0){
+                                            count++;
+                                        }
+                                        index = init;
+                                        size = count -init-1;
+                                        true = 1;
+                                        break;
+                                    }
+
+                                }
+                                count++;counts++;
+                            }
+                            count = init;
+                            counts = 0;
+                        }
+                        count++;
+                    }
+                    if (index == 0 && size == 0){
+                        printf("string not found\n");
+                    }
+                    else{
+                        remove(address);
+                        FILE *fil;
+                        fil = fopen(address, "w");
+                        cnt = 0;
+                        while(htext[cnt] != 0 && htext[cnt] != EOF ){
+                            if (cnt == index){
+                                for (int i=0 ; str2[i]!=0 ; i++){
+                                    fprintf(fil , "%c" , str2[i]);
+
+                                }
+                                cnt += size+1;
+                            }
+                            fprintf(fil , "%c" , htext[cnt]);
+                            cnt++;
+                        }
+                        fclose(fil);
+
+                    }
+
+                }
+
+                else if(c==' '){
+                    scanf("%s",all);
+                    if (strcmp(all,"-all")==0){
+                        int count=0;
+                        char htext[10000];
+                        while ((htext[count]=(char)fgetc(fp)) != EOF){
+                            count++;
+                        }
+                        fclose(fp);
+
+                        count = 0;
+                        int counts = 0;
+                        int size[1000] = {0};
+                        int true = 0;
+                        int index[1000] = {0};
+                        int init = 0;
+                        int u =0;
+                        int indexc=0;
+                        int sizec=0;
+                        while (htext[count] != 0 && htext[count] != '\0'){
+                            if (htext[count] == str1[0]){
+                                init = count;
+                                while (htext[count] == str1[counts]){
+                                    if (str1[counts+1] == 0 || str1[counts+1] == '\0'){
+                                        true++;
+                                        if (cond == 0){
+                                            index[indexc] = init;
+                                            size[sizec] = counts;
+                                            indexc++;sizec++;
+                                        }
+                                        else if(cond == 1){
+                                            u = count;
+                                            count = init;
+                                            while(htext[count] != ' ' && htext[count] != '\n' && count >= 0){
+                                                count--;
+                                            }
+                                            index[indexc] = count+1;
+                                            size[sizec] = u-count-1;
+                                            sizec++;indexc++;
+                                        }
+
+                                        else if(cond == 2){
+                                            u = count;
+                                            while(htext[count] != ' ' && htext[count] != '\n' && htext[count] != 0  && htext[count] != EOF){
+                                                count++;
+                                            }
+                                            index[indexc] = init;
+                                            size[sizec] = count -init -1;
+                                            sizec++;indexc++;
+                                            count = init;
+                                        }
+
+                                    }
+                                    count++;counts++;
+                                }
+                                count = init;
+                                counts = 0;
+                            }
+                            count++;
+                        }
+                        if (true == 0){
+                            printf("string not found\n");
+                        }
+                        else{
+                            remove(address);
+                            FILE *fil;
+                            fil = fopen(address, "w");
+                            cnt = 0;
+                            int cnti=0;
+                            while(htext[cnt] != 0 && htext[cnt] != EOF ){
+                                if (cnt == index[cnti]){
+                                    for (int i=0 ; str2[i]!=0 ; i++){
+                                        fprintf(fil , "%c" , str2[i]);
+
+                                    }
+                                    cnt += size[cnti]+1;
+                                    cnti++;
+                                }
+                                if (htext[cnt] != 0 && htext[cnt] != EOF){
+                                    fprintf(fil , "%c" , htext[cnt]);
+                                    cnt++;
+                                }
+                            }
+                            fclose(fil);
+
+                        }
+                    }
+                    else if(strcmp(all,"-at")==0){
+
+                        int num;
+                        scanf("%d",&num);
+                        int count=0;
+                        char htext[10000];
+                        while ((htext[count]=(char)fgetc(fp)) != EOF){
+                            count++;
+                        }
+                        fclose(fp);
+
+                        count = 0;
+                        int counts = 0;
+                        int size=0;
+                        int true = 0;
+                        int index=0;
+                        int init = 0;
+                        int u =0;
+                        int numnum=0;
+
+                        while (htext[count] != 0 && htext[count] != '\0'){
+                            if (htext[count] == str1[0]){
+                                init = count;
+                                while (htext[count] == str1[counts]){
+                                    if (str1[counts+1] == 0 || str1[counts+1] == '\0'){
+                                        true++;
+                                        numnum++;
+                                        if (cond == 0 && numnum==num){
+                                            index = init;
+                                            size = counts;
+                                        }
+                                        else if(cond == 1 && numnum==num){
+                                            u = count;
+                                            count = init;
+                                            while(htext[count] != ' ' && htext[count] != '\n' && count >= 0){
+                                                count--;
+                                            }
+                                            index = count+1;
+                                            size = u-count-1;
+
+                                        }
+
+                                        else if(cond == 2 && numnum==num){
+                                            u = count;
+                                            while(htext[count] != ' ' && htext[count] != '\n' && htext[count] != 0  && htext[count] != EOF){
+                                                count++;
+                                            }
+                                            index = init;
+                                            size = count -init -1;
+                                            count = init;
+                                        }
+
+                                    }
+                                    count++;counts++;
+                                }
+                                count = init;
+                                counts = 0;
+                            }
+                            count++;
+                        }
+                        if (true == 0){
+                            printf("string not found\n");
+                        }
+                        else if(numnum<num){
+                            printf("-1\n");
+                        }
+                        else{
+                            remove(address);
+                            FILE *fil;
+                            fil = fopen(address, "w");
+                            cnt = 0;
+                            int cnti=0;
+                            while(htext[cnt] != 0 && htext[cnt] != EOF ){
+                                if (cnt == index){
+                                    for (int i=0 ; str2[i]!=0 ; i++){
+                                        fprintf(fil , "%c" , str2[i]);
+
+                                    }
+                                    cnt += size+1;
+                                    cnti++;
+                                }
+                                if (htext[cnt] != 0 && htext[cnt] != EOF){
+                                    fprintf(fil , "%c" , htext[cnt]);
+                                    cnt++;
+                                }
+                            }
+                            fclose(fil);
+
+                        }
+                    }
+                    else{
+                        printf("Invalid args\n");
+                    }
+                }
+
+            }
+
+        }
+        else{
+            printf("Invalid args\n");
+        }
+
+    }
+    else{
+        printf("Invalid args\n");
+    }
+
+}
+
 
 int command(char list[]) {
     if (strcmp(list, "exit") == 0) {
@@ -2230,6 +2677,10 @@ int command(char list[]) {
     if (strcmp(list, "find") == 0) {
 
         return 8;
+    }
+
+    if (strcmp(list , "replace")==0){
+        return 9;
     }
 
     return 0;
@@ -2429,6 +2880,25 @@ int main() {
                 printf("Invalid command\n");
             }
         }
+
+
+        if (com == 9){
+            char dum;
+            char str[30];
+            scanf("%s ", str);
+            if (strcmp(str, "--str1") == 0) {
+                //printf("aa");
+                replace();
+            } else {
+                char c = 0;
+                while (c != '\n') {
+                    scanf("%c", &c);
+                }
+                printf("Invalid command\n");
+            }
+        }
+
+
     }
 
     return 0;
