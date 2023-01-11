@@ -2384,6 +2384,234 @@ void replace(){
 
 }
 
+int grepFunc(char address[] , char str[] , int mode){
+    char row[1000];
+    int index;
+    int res=0;
+    char text[100][100];
+    char c;
+    FILE *fp = fopen(address,"r+");
+    if (fp == NULL){
+        printf("File not found\n");
+        return -1;
+    }
+    int i=0;
+    int j=0;
+    while((text[i][j]=(char)getc(fp)) != EOF){
+        j++;
+        if (text[i][j-1] == '\n'){
+            i++;
+            j=0;
+        }
+    }
+    fclose(fp);
+    if (mode == 0){
+        int count = 0;
+        j=0;
+        int init;
+        int counts=0;
+        while (text[count][0] != 0){
+            if(text[count][j]==0){
+                count++;
+                j=0;
+            }
+
+            if (text[count][j] == str[0]){
+                init = j;
+                while (text[count][j] == str[counts] && text[count][j]!='\n' && str[counts]!=0){
+                    if (str[counts+1] == 0 || str[counts+1] == '\0'){
+                        j=0;
+                        printf("%s: ",address);
+                        while(text[count][j]!=0){
+                            printf("%c",text[count][j]);
+                            j++;
+                        }
+                        j=0;
+                        count++;
+                    }
+                    j++;counts++;
+                }
+                j = init;
+                counts = 0;
+            }
+            j++;
+        }
+    }
+    else if(mode == 1){
+        int count = 0;
+        j=0;
+        int init;
+        int result=0;
+        int counts=0;
+        while (text[count][0] != 0){
+            if(text[count][j]==0){
+                count++;
+                j=0;
+            }
+
+            if (text[count][j] == str[0]){
+                init = j;
+                while (text[count][j] == str[counts] && text[count][j]!='\n' && str[counts]!=0){
+                    if (str[counts+1] == 0 || str[counts+1] == '\0'){
+                        result++;
+                        j=0;
+                        count++;
+                    }
+                    j++;counts++;
+                }
+                j = init;
+                counts = 0;
+            }
+            j++;
+        }
+        return result;
+    }
+    else if(mode == 2){
+        int count = 0;
+        j=0;
+        int init;
+        int counts=0;
+        while (text[count][0] != 0){
+            if(text[count][j]==0){
+                count++;
+                j=0;
+            }
+
+            if (text[count][j] == str[0]){
+                init = j;
+                while (text[count][j] == str[counts] && text[count][j]!='\n' && str[counts]!=0){
+                    if (str[counts+1] == 0 || str[counts+1] == '\0'){
+                        j=0;
+                        printf("%s\n",address);
+                        return 0;
+                        count++;
+                    }
+                    j++;counts++;
+                }
+                j = init;
+                counts = 0;
+            }
+            j++;
+        }
+    }
+
+}
+
+void grep(){
+    char address[100][100];
+    char str1[1000];
+    char st[30];
+    char op[10];
+    char file[30];
+    int cnt = 0;
+    char c = 0;
+    int mode = 0;
+
+    scanf("%s ",op);
+
+    if (strcmp(op,"--str")!=0){
+        mode = 1;
+        scanf("%s ",st);
+        if (strcmp(st,"--str")!=0){
+            printf("Invalid command\n");
+            return;
+        }
+
+        if(strcmp(op,"-c")==0){
+            mode = 1;
+        }
+        else if(strcmp(op,"-l")==0){
+            mode = 2;
+        }
+        else{
+            printf("Invalid command\n");
+            return;
+        }
+    }
+    scanf("%c",&c);
+    if (c == '"'){
+        char c1;
+        scanf("%c",&c);
+        while(c!='"') {
+            if (c == 92) {
+                scanf("%c", &c1);
+                if (c1 == '"') {
+                    str1[cnt] = c1;
+                    cnt++;
+                    scanf("%c", &c);
+                } else {
+                    str1[cnt] = c;
+                    cnt++;
+                    str1[cnt] = c1;
+                    cnt++;
+                    scanf("%c", &c);
+                }
+            } else {
+                str1[cnt] = c;
+                cnt++;
+                scanf("%c", &c);
+            }
+        }
+    }
+
+    if (c != '"') {
+        while (c != ' ') {
+            str1[cnt] = c;
+            cnt++;
+            scanf("%c", &c);
+        }
+    }
+    scanf("%s ",file);
+    if (strcmp(file,"--files")!=0){
+        printf("Invalid args\n");
+        return;
+    }
+    c=1;
+
+    int res=0;
+    int i=0;
+    while(c!='\n'){
+        cnt=0;
+        scanf("%c",&c);
+        if (c == '"'){
+            scanf("%c",&c);
+            while(c != '"'){
+                if (c == '/'){
+                    c = '\\';
+                }
+                address[i][cnt] = c;
+                cnt++;
+                scanf("%c",&c);
+            }
+            scanf("%c",&c);
+            strcpy(address[i] , appendAddress(ADD , address[i]));
+        }
+        else{
+            while(c != ' ' && c != '\n'){
+                if (c == '/'){
+                    c = '\\';
+                }
+                address[i][cnt] = c;
+                cnt++;
+                scanf("%c",&c);
+            }
+            strcpy(address[i] , appendAddress(ADD , address[i]));
+        }
+        res += grepFunc(address[i],str1,mode);
+        i++;
+    }
+    if (mode==1){
+        printf("%d\n",res);
+    }
+
+
+}
+
+void undo(){
+
+}
+
+
 
 int command(char list[]) {
     if (strcmp(list, "exit") == 0) {
@@ -2438,6 +2666,10 @@ int command(char list[]) {
 
     if (strcmp(list , "replace")==0){
         return 9;
+    }
+
+    if (strcmp(list , "grep")==0){
+        return 10;
     }
 
     return 0;
@@ -2653,6 +2885,11 @@ int main() {
                 }
                 printf("Invalid command\n");
             }
+        }
+
+        if (com == 10){
+            grep();
+
         }
 
 
