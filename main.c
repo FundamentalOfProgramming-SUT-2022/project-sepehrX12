@@ -942,6 +942,7 @@ int find(){
     int mode = 0;
     char all[30];
     char mod[30];
+    int index = 0;
 
 
     scanf("%c",&c);
@@ -955,9 +956,18 @@ int find(){
                 scanf("%c",&c);
             }
             if (c == '*'){
-                break;
+                scanf("%c", &c1);
+                if(c1 == '"'){
+                    cond = 0;
+                }
+                else{
+                    cond = 2;
+                    index = cnt;
+                    text[cnt]=c1;
+                    cnt++;
+                    scanf("%c", &c);
+                }
             }
-
             if (c == 92) {
                 scanf("%c", &c1);
                 if (c1 == '*' || c1 == '"') {
@@ -986,10 +996,21 @@ int find(){
                 cond = 1;
                 scanf("%c",&c);
             }
-            if (c == '*'){
-                break;
+            else if (c == '*'){
+                scanf("%c", &c1);
+                if(c1 == ' '){
+                    cond = 0;
+                    c=c1;
+                }
+                else{
+                    cond = 2;
+                    index = cnt;
+                    text[cnt]=c1;
+                    cnt++;
+                    scanf("%c", &c);
+                }
             }
-            if (c == 92) {
+            else if (c == 92) {
                 scanf("%c", &c1);
                 if (c1 == '*') {
                     text[cnt] = c1;
@@ -1002,7 +1023,6 @@ int find(){
                     scanf("%c", &c);
                 }
             } else {
-                //printf("%c",c);
                 text[cnt] = c;
                 cnt++;
                 scanf("%c", &c);
@@ -1017,1169 +1037,906 @@ int find(){
         return -2;
     }
 
-    if (cond == 1){
-        //printf("%d",cond);
-        cnt = 0;
-        char c1;
+
+    cnt = 0;
+    char c1;
+    scanf("%c",&c);
+    if (c == '"'){
         scanf("%c",&c);
-        if (c == '"'){
+        while(c != '"'){
+            address[cnt] = c;
+            cnt++;
             scanf("%c",&c);
-            while(c != '"'){
-                address[cnt] = c;
-                cnt++;
-                scanf("%c",&c);
-            }
+        }
+        scanf("%c",&c);
+        strcpy(address , appendAddress(ADD , address));
+        if (c == '\n'){
+            mode = 0;
+        }
+        else if (c == ' '){
+            mode = 1;
+        }
+    }
+    else{
+        while(c != ' ' && c != '\n'){
+            address[cnt] = c;
+            cnt++;
             scanf("%c",&c);
-            strcpy(address , appendAddress(ADD , address));
-            if (c == '\n'){
-                mode = 0;
-            }
-            else if (c == ' '){
-                mode = 1;
-            }
         }
-        else{
-            while(c != ' ' && c != '\n'){
-                address[cnt] = c;
-                cnt++;
-                scanf("%c",&c);
-            }
-            strcpy(address , appendAddress(ADD , address));
-            if (c == '\n'){
-                mode = 0;
-            }
-            else if (c == ' '){
-                mode = 1;
-            }
+        strcpy(address , appendAddress(ADD , address));
+        if (c == '\n'){
+            mode = 0;
         }
-        if (mode != 0) {
+        else if (c == ' '){
+            mode = 1;
+        }
+    }
+    if (mode != 0) {
 
-            int shom = 0;
+        int shom = 0;
+        scanf("%c", &c);
+        while (c != '\n' && c != ' ') {
+            all[shom]=c;
             scanf("%c", &c);
-            while (c != '\n' && c != ' ') {
-                all[shom]=c;
-                scanf("%c", &c);
-                shom++;
-            }
-            all[shom] = '\0';
+            shom++;
+        }
+        all[shom] = '\0';
 
-            if (strcmp(all, "-all") == 0) {
+        if (strcmp(all, "-all") == 0) {
 
-                if (c == ' '){
-                    scanf("%s",mod);
-                    if (strcmp(mod , "-byword")==0){
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL){
-                            printf("File does not exist!");
-                        }
-                        else{
-                            cnt=0;
-                            int cnt1 =1;
-                            int res;
-                            int y=0;
-                            char memo[1000];
-                            char hfile[10000];
-                            int word = 0;
-                            int word1 =0;
-                            int u=0;
-                            int hcnt = 0;
-                            while((c = (char)fgetc(fp)) != EOF){
-                                hfile[hcnt]=c;
-                                hcnt++;
-                            }
-                            while((c = hfile[cnt1-1]) != 0 && (c = hfile[cnt1-1]) != '\0'){
-                                if (c == ' ' || c == '\n'){
-                                    word++;
-                                }
-                                memo[cnt1]=c;
-                                if (c != text[cnt]){
-                                    y=0;
-                                    cnt=0;
-                                }
-                                if (c == text[cnt]){
-                                    if (y == 0){
-                                        res = cnt1;
-                                        word1 = word;
-                                    }
-                                    y=1;
-                                    cnt++;
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                    if (y==1){
-                                        u++;
-                                        if (u == 1){
-                                            printf("%d" , word1);
-                                        }
-                                        else{
-                                            printf(",%d" , word1);
-                                        }
-                                        cnt=0;
-                                        y=0;
-                                    }
-                                    else{
-                                        cnt=0;
-                                        y=0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            printf("\n");
-                            fclose(fp);
-                            return -3;
-                        }
-                    }
-                    else return -1;
-                }
-                else{
+            if (c == ' '){
+                scanf("%s",mod);
+                if (strcmp(mod , "-byword")==0){
                     FILE *fp;
                     fp = fopen(address, "r+");
                     //printf("%s\n",address);
                     if (fp == NULL){
-                        printf("File does not exist!");
+                        printf("File does not exist!\n");
                     }
                     else{
                         cnt=0;
-                        int cnt1 =1;
+                        int cnt1 =0;
                         int res;
                         int y=0;
-                        char memo[1000];
+                        char hfile[10000];
+                        int word = 1;
+                        int word1 =1;
                         int u=0;
+                        int hcnt = 0;
+                        int init = 0;
+                        int counts=0;
+                        int true=0;
                         while((c = (char)fgetc(fp)) != EOF){
-                            memo[cnt1]=c;
-                            if (c != text[cnt]){
-                                y=0;
-                                cnt=0;
-                            }
-                            if (c == text[cnt]){
-
-                                if (y == 0){
-                                    res = cnt1;
-                                }
-                                y=1;
-                                cnt++;
-                            }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                if (y==1){
-                                    u++;
-                                    int cnt2 = cnt1;
-                                    while(cnt1 > 1 && memo[cnt1] != ' ' &&  memo[cnt1] != '\n'){
-                                        cnt1--;
-                                    }
-                                    if (u == 1){
-                                        printf("%d" , ++cnt1);
-                                    }
-                                    else{
-                                        printf(",%d" , ++cnt1);
-                                    }
-                                    cnt1 = cnt2;
-                                    cnt=0;
-                                    y=0;
-                                }
-                                else{
-                                    cnt=0;
-                                    y=0;
-                                }
-
-                            }
-
-                            cnt1++;
+                            hfile[hcnt]=c;
+                            hcnt++;
                         }
-                        fclose(fp);
-                        if (u==0){
-                            return -1;
-                        }
-                        return -3;
-                    }
-                }
-            }
+                        while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                            if (hfile[cnt1] == text[0]){
+                                init = cnt1;
+                                while (hfile[cnt1] == text[counts]){
+                                    if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
 
-            else if(strcmp(all , "-byword")==0){
-                if (c == ' '){
-                    scanf("%s",mod);
-                    if (strcmp(mod , "-all")==0){
-
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL){
-                            printf("File does not exist!");
-                        }
-                        else{
-                            cnt=0;
-                            int cnt1 =1;
-                            int res;
-                            int y=0;
-                            char memo[1000];
-                            int word=1;
-                            int word1=1;
-                            int final=0;
-                            while((c = (char)fgetc(fp)) != EOF){
-                                if (c == ' ' || c=='\n'){
-                                    word++;
-                                }
-                                memo[cnt1]=c;
-                                if (c != text[cnt]){
-                                    y=0;
-                                    cnt=0;
-                                }
-                                if (c == text[cnt]){
-
-                                    if (y == 0){
-                                        res = cnt1;
-                                        word1=word;
-                                    }
-                                    y=1;
-                                    cnt++;
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                    if (y==1){
-                                        cnt=0;
-                                        y=0;
-                                        int cnt2 = cnt1;
-                                        final++;
-                                        if (final == 1){
-                                            printf("%d",word1);
+                                        if (cond == 0){
+                                            true++;
+                                            if (true==1){
+                                                printf("%d",word);
+                                            }
+                                            else{
+                                                printf(",%d",word);
+                                            }
                                         }
-                                        else{
-                                            printf(",%d",word1);
-                                        }
-                                        cnt1=cnt2;
-
-                                    }
-                                    else{
-                                        cnt=0;
-                                        y=0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            if (final > 0) {
-                                printf("\n");
-                                fclose(fp);
-                                return -3;
-                            }
-                            return -1;
-                        }
-                    }
-                    else if(strcmp(mod , "-at")==0){
-                        int num;
-                        scanf("%d",&num);
-                        scanf("%c",&c);
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL){
-                            printf("File does not exist!");
-                        }
-                        else{
-                            cnt=0;
-                            int cnt1 =1;
-                            int res;
-                            int y=0;
-                            char memo[1000];
-                            int u = 0;
-                            int word = 1;
-                            int word1 =1 ;
-                            while((c = (char)fgetc(fp)) != EOF){
-                                if (c == ' ' || c == '\n'){
-                                    word++;
-                                }
-                                memo[cnt1]=c;
-                                if (c != text[cnt]){
-                                    y=0;
-                                    cnt=0;
-                                }
-                                if (c == text[cnt]){
-                                    if (y == 0){
-                                        res = cnt1;
-                                    }
-                                    word1 = word;
-                                    y=1;
-                                    cnt++;
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                    if (y==1){
-                                        u++;
-                                        cnt=0;
-                                        y=0;
-                                        while(cnt1 > 1 && memo[cnt1] != ' ' &&  memo[cnt1] != '\n'){
-                                            cnt1--;
-                                        }
-                                        if (u == num){
-                                            fclose(fp);
-                                            return word1;
+                                        else if(cond == 1){
+                                            true++;
+                                            if (true==1){
+                                                printf("%d",word);
+                                            }
+                                            else{
+                                                printf(",%d",word);
+                                            }
                                         }
 
-
-
+                                        else if(cond == 2){
+                                            int indic = 0;
+                                            while(hfile[cnt1]!=0 && indic==0){
+                                                if(hfile[cnt1] == text[index]){
+                                                    counts=index;
+                                                    int init1 = cnt1;
+                                                    while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                        if(text[counts+1]==0){
+                                                            true++;
+                                                            if (true==1){
+                                                                printf("%d",word);
+                                                                indic++;
+                                                            }
+                                                            else{
+                                                                printf(",%d",word);
+                                                                indic++;
+                                                            }
+                                                        }
+                                                        cnt1++;
+                                                        counts++;
+                                                    }
+                                                    counts=index;
+                                                    cnt1=init1;
+                                                }
+                                                cnt1++;
+                                            }
+                                        }
                                     }
-                                    else{
-                                        cnt=0;
-                                        y=0;
-                                    }
-
+                                    cnt1++;counts++;
                                 }
-
-                                cnt1++;
+                                cnt1 = init;
+                                counts = 0;
                             }
-                            fclose(fp);
-                            return -1;
-                        }
-
-                    }
-                    return -1;
-                }
-                else{
-                    FILE *fp;
-                    fp = fopen(address, "r+");
-                    //printf("%s\n",address);
-                    if (fp == NULL){
-                        printf("File does not exist!");
-                    }
-                    else{
-                        cnt=0;
-                        int cnt1 =1;
-                        int res;
-                        int y=0;
-                        char memo[1000];
-                        int word=1;
-                        int word1=1;
-                        while((c = (char)fgetc(fp)) != EOF){
-                            if (c == ' ' || c=='\n'){
+                            if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
                                 word++;
                             }
-                            memo[cnt1]=c;
-                            if (c != text[cnt]){
-                                y=0;
-                                cnt=0;
-                            }
-                            if (c == text[cnt]){
-
-                                if (y == 0){
-                                    res = cnt1;
-                                    word1=word;
-                                }
-                                y=1;
-                                cnt++;
-                            }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                if (y==1){
-                                    cnt=0;
-                                    y=0;
-                                    fclose(fp);
-                                    return word1;
-                                }
-                                else{
-                                    cnt=0;
-                                    y=0;
-                                }
-
-                            }
-
                             cnt1++;
                         }
-                        fclose(fp);
-                        return -1;
-                    }
-                }
-
-            }
-
-            else if(strcmp(all , "-count")==0){
-
-                FILE *fp;
-                fp = fopen(address, "r+");
-                //printf("%s\n",address);
-                if (fp == NULL){
-                    printf("File does not exist!");
-                }
-                else {
-                    cnt = 0;
-                    int cnt1 = 1;
-                    int res;
-                    int y = 0;
-                    char memo[1000];
-                    int u = 0;
-                    while ((c = (char) fgetc(fp)) != EOF) {
-                        memo[cnt1] = c;
-                        if (c != text[cnt]) {
-                            y = 0;
-                            cnt = 0;
-                        }
-                        if (c == text[cnt]) {
-
-                            if (y == 0) {
-                                res = cnt1;
-                            }
-                            y = 1;
-                            cnt++;
-                        }
-
-                        if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                            if (y == 1) {
-                                while (cnt1 > 1 && memo[cnt1] != ' ' && memo[cnt1] != '\n') {
-                                    cnt1--;
-                                }
-                                u++;
-                                cnt = 0;
-                                y = 0;
-                            } else {
-                                cnt = 0;
-                                y = 0;
-                            }
-
-                        }
-
-                        cnt1++;
-                    }
-                    fclose(fp);
-                    return u;
-                }
-                return -1;
-
-            }
-
-            else if(strcmp(all , "-at")==0){
-                int num;
-                scanf("%d",&num);
-                scanf("%c",&c);
-
-                if (c==' '){
-                    scanf("%s" , mod);
-                    if (strcmp(mod , "-byword")==0){
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL){
-                            printf("File does not exist!");
-                        }
-                        else{
-                            cnt=0;
-                            int cnt1 =1;
-                            int res;
-                            int y=0;
-                            char memo[1000];
-                            int u = 0;
-                            int word = 1;
-                            int word1 =1 ;
-                            int final = 0;
-                            while((c = (char)fgetc(fp)) != EOF){
-                                if (c == ' ' || c == '\n'){
-                                    word++;
-                                }
-                                memo[cnt1]=c;
-                                if (c != text[cnt]){
-                                    y=0;
-                                    cnt=0;
-                                }
-                                if (c == text[cnt]){
-                                    if (y == 0){
-                                        res = cnt1;
-                                    }
-                                    word1 = word;
-                                    y=1;
-                                    cnt++;
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                    if (y==1){
-                                        u++;
-                                        cnt=0;
-                                        y=0;
-                                        while(cnt1 > 1 && memo[cnt1] != ' ' &&  memo[cnt1] != '\n'){
-                                            cnt1--;
-                                        }
-                                        if (u == num){
-                                            fclose(fp);
-                                            return word1;
-                                        }
-
-
-
-                                    }
-                                    else{
-                                        cnt=0;
-                                        y=0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            fclose(fp);
-                            if (final == 0){
-                                return -1;
-                            }
-                            return -1;
-                        }
-                    }
-                }
-                else{
-                    FILE *fp;
-                    fp = fopen(address, "r+");
-                    //printf("%s\n",address);
-                    if (fp == NULL){
-                        printf("File does not exist!");
-                    }
-                    else{
-                        cnt=0;
-                        int cnt1 =1;
-                        int res;
-                        int y=0;
-                        char memo[1000];
-                        int u = 0;
-                        while((c = (char)fgetc(fp)) != EOF){
-                            memo[cnt1]=c;
-                            if (c != text[cnt]){
-                                y=0;
-                                cnt=0;
-                            }
-                            if (c == text[cnt]){
-
-                                if (y == 0){
-                                    res = cnt1;
-                                }
-                                y=1;
-                                cnt++;
-                            }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')){
-                                if (y==1){
-                                    u++;
-                                    cnt=0;
-                                    y=0;
-                                    if (u == num){
-                                        while(cnt1 > 1 && memo[cnt1] != ' ' &&  memo[cnt1] != '\n'){
-                                            cnt1--;
-                                        }
-                                        fclose(fp);
-                                        return cnt1;
-                                    }
-
-                                }
-                                else{
-                                    cnt=0;
-                                    y=0;
-                                }
-
-                            }
-
-                            cnt1++;
-                        }
-                        fclose(fp);
-                        return -1;
-                    }
-                }
-            }
-        }
-
-        else if (mode == 0){
-            //printf("%s",text);
-            FILE *fp;
-            fp = fopen(address, "r+");
-            //printf("%s\n",address);
-            if (fp == NULL){
-                printf("File does not exist!");
-            }
-            else{
-                cnt=0;
-                int cnt1 =1;
-                int res;
-                int y=0;
-                char memo[1000];
-                while((c = (char)fgetc(fp)) != EOF){
-                    memo[cnt1]=c;
-                    if (c != text[cnt]){
-                        y=0;
-                        cnt=0;
-                    }
-                    if (c == text[cnt]){
-
-                        if (y == 0){
-                            res = cnt1;
-                        }
-                        y=1;
-                        cnt++;
-                    }
-
-                    if ((text[cnt] == 0 || text[cnt] == '\0')){
-                        if (y==1){
-                            while(cnt1 > 1 && memo[cnt1] != ' ' &&  memo[cnt1] != '\n'){
-                                cnt1--;
-                            }
-                            fclose(fp);
-                            return ++cnt1;
-                        }
-                        else{
-                            cnt=0;
-                            y=0;
-                        }
-
-                    }
-
-                    cnt1++;
-                }
-                fclose(fp);
-            }
-        }
-
-
-    }
-
-
-
-    else {
-        cnt = 0;
-        char c1;
-        scanf("%c", &c);
-        if (c == '"') {
-            scanf("%c", &c);
-            while (c != '"') {
-                address[cnt] = c;
-                cnt++;
-                scanf("%c", &c);
-            }
-            scanf("%c", &c);
-            strcpy(address, appendAddress(ADD, address));
-            if (c == '\n') {
-                mode = 0;
-            } else if (c == ' ') {
-                mode = 1;
-            }
-        } else {
-            while (c != ' ' && c != '\n') {
-                address[cnt] = c;
-                cnt++;
-                scanf("%c", &c);
-            }
-            if (c == '\n') {
-                mode = 0;
-            } else if (c == ' ') {
-                mode = 1;
-            }
-            strcpy(address, appendAddress(ADD, address));
-        }
-
-        if (mode != 0) {
-            int shom = 0;
-            scanf("%c", &c);
-            while (c != '\n' && c != ' '){
-                all[shom]=c;
-                scanf("%c", &c);
-                shom++;
-            }
-            all[shom] = '\0';
-            //printf("%s",all);
-
-            if (strcmp(all, "-all") == 0) {
-                if (c == ' '){
-                    scanf("%s", mod);
-                    if (strcmp(mod, "-byword") == 0) {
-
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL) {
-                            printf("File does not exist!");
-                        } else {
-                            cnt = 0;
-                            int cnt1 = 1;
-                            int res = 0;
-                            int y = 0;
-                            int rr = 1;
-                            int u = 0;
-                            while ((c = (char) fgetc(fp)) != EOF) {
-                                if (c == ' ' || c == '\n') {
-                                    rr++;
-                                }
-                                if (c != text[cnt]) {
-                                    y = 0;
-                                    cnt = 0;
-                                }
-                                if (c == text[cnt]) {
-                                    //printf("%c",c);
-                                    //printf("\n%s",text);
-                                    if (y == 0) {
-                                        res = cnt1;
-                                    }
-                                    y = 1;
-                                    cnt++;
-
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                    if (y == 1) {
-                                        u ++;
-                                        cnt = 0;
-                                        y = 0;
-                                        if (u == 1){
-                                            printf("%d",rr);
-                                        }
-                                        else{
-                                            printf(",%d",rr);
-                                        }
-
-
-                                    } else {
-                                        cnt = 0;
-                                        y = 0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            printf("\n");
+                        if (true == 0){
+                            printf("string not found\n");
                             fclose(fp);
                             return -3;
-                        }
-                    }
-                    return -1;
-                }
-                else{
-
-                    FILE *fp;
-                    fp = fopen(address, "r+");
-                    //printf("%s\n",address);
-                    if (fp == NULL) {
-                        printf("File does not exist!");
-                    } else {
-                        cnt = 0;
-                        int cnt1 = 1;
-                        int res;
-                        int y = 0;
-                        int u =0;
-                        while ((c = (char) fgetc(fp)) != EOF) {
-                            if (c != text[cnt]) {
-                                y = 0;
-                                cnt = 0;
-                            }
-                            if (c == text[cnt]) {
-                                //printf("%c",c);
-                                //printf("\n%s",text);
-                                if (y == 0) {
-                                    res = cnt1;
-                                }
-                                y = 1;
-                                cnt++;
-
-                            }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                if (y == 1) {
-                                    cnt = 0;
-                                    y = 0;
-                                    u++;
-                                    if (u == 1){
-                                        printf("%d",res) ;
-                                    }
-                                    else{
-                                        printf(",%d",res) ;
-                                    }
-                                } else {
-                                    cnt = 0;
-                                    y = 0;
-                                }
-
-                            }
-
-                            cnt1++;
                         }
                         printf("\n");
                         fclose(fp);
                         return -3;
                     }
                 }
+                else return -1;
             }
-
-            else if (strcmp(all, "-count") == 0) {
+            else{
                 FILE *fp;
                 fp = fopen(address, "r+");
                 //printf("%s\n",address);
-                if (fp == NULL) {
+                if (fp == NULL){
                     printf("File does not exist!");
-                } else {
-                    cnt = 0;
-                    int cnt1 = 1;
-                    int res = 0;
-                    int y = 0;
-                    while ((c = (char) fgetc(fp)) != EOF) {
-                        if (c != text[cnt]) {
-                            y = 0;
-                            cnt = 0;
-                        }
-                        if (c == text[cnt]) {
-                            //printf("%c",c);
-                            //printf("\n%s",text);
-                            y = 1;
-                            cnt++;
-
-                        }
-
-                        if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                            if (y == 1) {
-                                res++;
-                                cnt = 0;
-                                y = 0;
-                            } else {
-                                cnt = 0;
-                                y = 0;
-                            }
-
-                        }
-
-                        cnt1++;
-                    }
-                    fclose(fp);
-                    return res;
-                }
-            }
-
-            else if (strcmp(all, "-at") == 0) {
-                int num;
-                scanf("%d", &num);
-                scanf("%c",&c);
-                if (c == ' '){
-                    scanf("%s", mod);
-                    if (strcmp(mod,"-byword") == 0){
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL) {
-                            printf("File does not exist!");
-                        } else {
-                            cnt = 0;
-                            int cnt1 = 1;
-                            int res = 0;
-                            int y = 0;
-                            int rr = 0;
-                            int space = 0;
-                            while ((c = (char) fgetc(fp)) != EOF) {
-                                if (c==' ' || c=='\n'){
-                                    space++;
-                                }
-                                if (c != text[cnt]) {
-                                    y = 0;
-                                    cnt = 0;
-                                }
-                                if (c == text[cnt]) {
-                                    //printf("%c",c);
-                                    //printf("\n%s",text);
-                                    if (y == 0) {
-                                        res = cnt1;
-                                    }
-                                    y = 1;
-                                    cnt++;
-
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                    if (y == 1) {
-                                        rr++;
-                                        if (rr == num) {
-                                            fclose(fp);
-                                            return ++space;
-                                        }
-                                        cnt = 0;
-                                        y = 0;
-                                    } else {
-                                        cnt = 0;
-                                        y = 0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            fclose(fp);
-                            return -1;
-                        }
-                    }
-                    return -1;
                 }
                 else{
-                    FILE *fp;
-                    fp = fopen(address, "r+");
-                    //printf("%s\n",address);
-                    if (fp == NULL) {
-                        printf("File does not exist!");
-                    } else {
-                        cnt = 0;
-                        int cnt1 = 1;
-                        int res = 0;
-                        int y = 0;
-                        int rr = 0;
-                        while ((c = (char) fgetc(fp)) != EOF) {
-                            if (c != text[cnt]) {
-                                y = 0;
-                                cnt = 0;
-                            }
-                            if (c == text[cnt]) {
-                                //printf("%c",c);
-                                //printf("\n%s",text);
-                                if (y == 0) {
-                                    res = cnt1;
-                                }
-                                y = 1;
-                                cnt++;
-
-                            }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                if (y == 1) {
-                                    rr++;
-                                    if (rr == num) {
-                                        fclose(fp);
-                                        return res;
-                                    }
-                                    cnt = 0;
-                                    y = 0;
-                                } else {
-                                    cnt = 0;
-                                    y = 0;
-                                }
-
-                            }
-
-                            cnt1++;
-                        }
-                        fclose(fp);
-                        return -1;
+                    cnt=0;
+                    int cnt1 =0;
+                    int res;
+                    int y=0;
+                    char hfile[10000];
+                    int word = 1;
+                    int word1 =1;
+                    int u=0;
+                    int hcnt = 0;
+                    int init = 0;
+                    int counts=0;
+                    int true=0;
+                    while((c = (char)fgetc(fp)) != EOF){
+                        hfile[hcnt]=c;
+                        hcnt++;
                     }
-                }
-                return -1;
+                    while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                        if (hfile[cnt1] == text[0]){
+                            init = cnt1;
+                            while (hfile[cnt1] == text[counts]){
+                                if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
 
-            }
-
-            else if (strcmp(all, "-byword") == 0) {
-
-                if (c == ' '){
-                    scanf("%s", mod);
-                    if (strcmp(mod, "-all") == 0) {
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL) {
-                            printf("File does not exist!");
-                        } else {
-                            cnt = 0;
-                            int cnt1 = 1;
-                            int res = 0;
-                            int y = 0;
-                            int rr = 1;
-                            int u = 0;
-                            while ((c = (char) fgetc(fp)) != EOF) {
-                                if (c == ' ' || c == '\n') {
-                                    rr++;
-                                }
-                                if (c != text[cnt]) {
-                                    y = 0;
-                                    cnt = 0;
-                                }
-                                if (c == text[cnt]) {
-                                    //printf("%c",c);
-                                    //printf("\n%s",text);
-                                    if (y == 0) {
-                                        res = cnt1;
-                                    }
-                                    y = 1;
-                                    cnt++;
-
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                    if (y == 1) {
+                                    if (cond == 0){
                                         u++;
-                                        cnt = 0;
-                                        y = 0;
-                                        if (u == 1){
-                                            printf("%d",rr);
+                                        true++;
+                                        if (true==1){
+                                            printf("%d",init+1);
                                         }
                                         else{
-                                            printf(",%d",rr);
+                                            printf(",%d",init+1);
                                         }
-
-
-                                    } else {
-                                        cnt = 0;
-                                        y = 0;
+                                    }
+                                    else if(cond == 1){
+                                        u++;
+                                        true++;
+                                        cnt1=init;
+                                        while(hfile[cnt1-1] != ' ' && hfile[cnt1-1] != '\n' && cnt1>0){
+                                            cnt1--;
+                                        }
+                                        if (true==1){
+                                            printf("%d",cnt1+1);
+                                        }
+                                        else{
+                                            printf(",%d",cnt1+1);
+                                        }
                                     }
 
+                                    else if(cond == 2){
+                                        int indic = 0;
+                                        while(hfile[cnt1]!=0 && indic==0){
+                                            if(hfile[cnt1] == text[index]){
+                                                counts=index;
+                                                int init1 = cnt1;
+                                                while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                    if(text[counts+1]==0){
+                                                        true++;
+                                                        if (true==1){
+                                                            printf("%d",init+1);
+                                                            indic++;
+                                                        }
+                                                        else{
+                                                            printf(",%d",init+1);
+                                                            indic++;
+                                                        }
+                                                    }
+                                                    cnt1++;
+                                                    counts++;
+                                                }
+                                                counts=index;
+                                                cnt1=init1;
+                                            }
+                                            cnt1++;
+                                        }
+                                    }
                                 }
-
-                                cnt1++;
+                                cnt1++;counts++;
                             }
-                            printf("\n");
+                            cnt1 = init;
+                            counts = 0;
+                        }
+                        cnt1++;
+                    }
+                    if (true == 0){
+                        printf("string not found\n");
+                        fclose(fp);
+                        return -3;
+                    }
+                    printf("\n");
+                    fclose(fp);
+                    return -3;
+                }
+            }
+        }
+
+        else if(strcmp(all , "-byword")==0){
+            if (c == ' '){
+                scanf("%s",mod);
+                if (strcmp(mod , "-all")==0){
+
+                    FILE *fp;
+                    fp = fopen(address, "r+");
+                    if (fp == NULL){
+                        printf("File does not exist!");
+                    }
+                    else{
+                        cnt=0;
+                        int cnt1 =0;
+                        int res;
+                        int y=0;
+                        char hfile[10000];
+                        int word = 1;
+                        int word1 =1;
+                        int u=0;
+                        int hcnt = 0;
+                        int init = 0;
+                        int counts=0;
+                        int true=0;
+                        while((c = (char)fgetc(fp)) != EOF){
+                            hfile[hcnt]=c;
+                            hcnt++;
+                        }
+                        while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                            if (hfile[cnt1] == text[0]){
+                                init = cnt1;
+                                while (hfile[cnt1] == text[counts]){
+                                    if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                                        if (cond == 0){
+                                            true++;
+                                            if (true==1){
+                                                printf("%d",word);
+                                            }
+                                            else{
+                                                printf(",%d",word);
+                                            }
+                                        }
+                                        else if(cond == 1){
+                                            true++;
+                                            if (true==1){
+                                                printf("%d",word);
+                                            }
+                                            else{
+                                                printf(",%d",word);
+                                            }
+                                        }
+
+                                        else if(cond == 2){
+                                            int indic = 0;
+                                            while(hfile[cnt1]!=0 && indic==0){
+                                                if(hfile[cnt1] == text[index]){
+                                                    counts=index;
+                                                    int init1 = cnt1;
+                                                    while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                        if(text[counts+1]==0){
+                                                            true++;
+                                                            if (true==1){
+                                                                printf("%d",word);
+                                                                indic++;
+                                                            }
+                                                            else{
+                                                                printf(",%d",word);
+                                                                indic++;
+                                                            }
+                                                        }
+                                                        cnt1++;
+                                                        counts++;
+                                                    }
+                                                    counts=index;
+                                                    cnt1=init1;
+                                                }
+                                                cnt1++;
+                                            }
+                                        }
+                                    }
+                                    cnt1++;counts++;
+                                }
+                                cnt1 = init;
+                                counts = 0;
+                            }
+                            if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                                word++;
+                            }
+                            cnt1++;
+                        }
+                        if (true == 0){
+                            printf("string not found\n");
                             fclose(fp);
                             return -3;
                         }
+                        printf("\n");
+                        fclose(fp);
+                        return -3;
                     }
-                    else if (strcmp(mod, "-at") == 0){
-                        int num;
-                        scanf("%d", &num);
-                        //printf("%d",num);
-                        FILE *fp;
-                        fp = fopen(address, "r+");
-                        //printf("%s\n",address);
-                        if (fp == NULL) {
-                            printf("File does not exist!");
-                        } else {
-                            cnt = 0;
-                            int cnt1 = 1;
-                            int res = 0;
-                            int y = 0;
-                            int rr = 0;
-                            int space = 0;
-                            while ((c = (char) fgetc(fp)) != EOF) {
-                                if (c==' ' || c == '\n'){
-                                    space++;
-                                }
-                                if (c != text[cnt]) {
-                                    y = 0;
-                                    cnt = 0;
-                                }
-                                if (c == text[cnt]) {
-                                    //printf("%c",c);
-                                    //printf("\n%s",text);
-                                    if (y == 0) {
-                                        res = cnt1;
-                                    }
-                                    y = 1;
-                                    cnt++;
-
-                                }
-
-                                if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                    if (y == 1) {
-                                        rr++;
-                                        if (rr == num) {
-                                            fclose(fp);
-                                            return ++space;
-                                        }
-                                        cnt = 0;
-                                        y = 0;
-                                    } else {
-                                        cnt = 0;
-                                        y = 0;
-                                    }
-
-                                }
-
-                                cnt1++;
-                            }
-                            fclose(fp);
-                            return -1;
-                        }
-                    }
-                    return -1;
                 }
-                else{
+                else if(strcmp(mod , "-at")==0){
+                    int num;
+                    scanf("%d",&num);
+                    scanf("%c",&c);
                     FILE *fp;
                     fp = fopen(address, "r+");
-                    //printf("%s\n",address);
-                    if (fp == NULL) {
+                    if (fp == NULL){
                         printf("File does not exist!");
-                    } else {
-                        cnt = 0;
-                        int cnt1 = 1;
-                        int res = 0;
-                        int y = 0;
-                        int rr = 0;
-                        while ((c = (char) fgetc(fp)) != EOF) {
-                            if (c == ' ' || c == '\n') {
-                                rr++;
-                            }
-                            if (c != text[cnt]) {
-                                y = 0;
-                                cnt = 0;
-                            }
-                            if (c == text[cnt]) {
-                                //printf("%c",c);
-                                //printf("\n%s",text);
-                                if (y == 0) {
-                                    res = cnt1;
+                    }
+                    else{
+                        cnt=0;
+                        int cnt1 =0;
+                        int res;
+                        int y=0;
+                        char hfile[10000];
+                        int word = 1;
+                        int word1 =1;
+                        int u=0;
+                        int hcnt = 0;
+                        int init = 0;
+                        int counts=0;
+                        int true=0;
+                        while((c = (char)fgetc(fp)) != EOF){
+                            hfile[hcnt]=c;
+                            hcnt++;
+                        }
+                        while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                            if (hfile[cnt1] == text[0]){
+                                init = cnt1;
+                                while (hfile[cnt1] == text[counts]){
+                                    if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                                        if (cond == 0){
+                                            true++;
+                                            if (num == true){
+                                                printf("%d",word);
+                                            }
+                                        }
+                                        else if(cond == 1){
+                                            true++;
+                                            if (num == true){
+                                                printf("%d",word);
+                                            }
+                                        }
+
+                                        else if(cond == 2){
+                                            int indic = 0;
+                                            while(hfile[cnt1]!=0 && indic==0){
+                                                if(hfile[cnt1] == text[index]){
+                                                    counts=index;
+                                                    int init1 = cnt1;
+                                                    while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                        if(text[counts+1]==0){
+                                                            true++;
+                                                            if (num == true){
+                                                                printf("%d",word);
+                                                            }
+                                                        }
+                                                        cnt1++;
+                                                        counts++;
+                                                    }
+                                                    counts=index;
+                                                    cnt1=init1;
+                                                }
+                                                cnt1++;
+                                            }
+                                        }
+                                    }
+                                    cnt1++;counts++;
                                 }
-                                y = 1;
-                                cnt++;
-
+                                cnt1 = init;
+                                counts = 0;
                             }
-
-                            if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                                if (y == 1) {
-                                    rr++;
-                                    return rr;
-                                    fclose(fp);
-                                } else {
-                                    cnt = 0;
-                                    y = 0;
-                                }
-
+                            if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                                word++;
                             }
-
                             cnt1++;
                         }
+                        if(num > true){
+                            printf("-at argument too big\n");
+                            fclose(fp);
+                            return -3;
+                        }
+                        if (true == 0){
+                            printf("string not found\n");
+                            fclose(fp);
+                            return -3;
+                        }
+                        printf("\n");
                         fclose(fp);
-                        return -1;
+                        return -3;
                     }
-                }
 
+                }
+                return -1;
+            }
+            else{
+                FILE *fp;
+                fp = fopen(address, "r+");
+                if (fp == NULL){
+                    printf("File does not exist!");
+                }
+                else{
+                    cnt=0;
+                    int cnt1 =0;
+                    int res;
+                    int y=0;
+                    char hfile[10000];
+                    int word = 1;
+                    int word1 =1;
+                    int u=0;
+                    int hcnt = 0;
+                    int init = 0;
+                    int counts=0;
+                    int true=0;
+                    while((c = (char)fgetc(fp)) != EOF){
+                        hfile[hcnt]=c;
+                        hcnt++;
+                    }
+                    while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                        if (hfile[cnt1] == text[0]){
+                            init = cnt1;
+                            while (hfile[cnt1] == text[counts]){
+                                if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                                    if (cond == 0){
+                                        true++;
+                                        printf("%d\n",word);
+                                        fclose(fp);
+                                        return -3;
+
+
+                                    }
+                                    else if(cond == 1){
+                                        true++;
+                                        printf("%d\n",word);
+                                        fclose(fp);
+                                        return -3;
+                                    }
+
+                                    else if(cond == 2){
+                                        int indic = 0;
+                                        while(hfile[cnt1]!=0 && indic==0){
+                                            if(hfile[cnt1] == text[index]){
+                                                counts=index;
+                                                int init1 = cnt1;
+                                                while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                    if(text[counts+1]==0){
+                                                        true++;
+                                                        printf("%d\n",word);
+                                                        fclose(fp);
+                                                        return -3;
+                                                    }
+                                                    cnt1++;
+                                                    counts++;
+                                                }
+                                                counts=index;
+                                                cnt1=init1;
+                                            }
+                                            cnt1++;
+                                        }
+                                    }
+                                }
+                                cnt1++;counts++;
+                            }
+                            cnt1 = init;
+                            counts = 0;
+                        }
+                        if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                            word++;
+                        }
+                        cnt1++;
+                    }
+                    if (true == 0){
+                        printf("string not found\n");
+                        fclose(fp);
+                        return -3;
+                    }
+                    return -3;
+                }
             }
 
         }
 
-        if (mode == 0) {
+        else if(strcmp(all , "-count")==0){
+
             FILE *fp;
             fp = fopen(address, "r+");
             //printf("%s\n",address);
-            if (fp == NULL) {
+            if (fp == NULL){
                 printf("File does not exist!");
-            } else {
+            }
+            else {
                 cnt = 0;
-                int cnt1 = 1;
+                int cnt1 = 0;
                 int res;
                 int y = 0;
+                char hfile[10000];
+                int word = 1;
+                int word1 = 1;
+                int u = 0;
+                int hcnt = 0;
+                int init = 0;
+                int counts = 0;
+                int true = 0;
                 while ((c = (char) fgetc(fp)) != EOF) {
-                    if (c != text[cnt]) {
-                        y = 0;
-                        cnt = 0;
-                    }
-                    if (c == text[cnt]) {
-                        //printf("%c",c);
-                        //printf("\n%s",text);
-                        if (y == 0) {
-                            res = cnt1;
+                    hfile[hcnt] = c;
+                    hcnt++;
+                }
+                while (hfile[cnt1] != 0 && hfile[cnt1] != '\0') {
+                    if (hfile[cnt1] == text[0]) {
+                        init = cnt1;
+                        while (hfile[cnt1] == text[counts]) {
+                            if ((text[counts + 1] == 0 || text[counts + 1] == '\0') ||
+                                (cond == 2 && counts + 1 == index)) {
+
+                                if (cond == 0) {
+                                    u++;
+                                    true++;
+
+                                } else if (cond == 1) {
+                                    u++;
+                                    true++;
+
+                                } else if (cond == 2) {
+                                    int indic = 0;
+                                    while (hfile[cnt1] != 0 && indic == 0) {
+                                        if (hfile[cnt1] == text[index]) {
+                                            counts = index;
+                                            int init1 = cnt1;
+                                            while (hfile[cnt1] == text[counts] && text[counts] != 0) {
+                                                if (text[counts + 1] == 0) {
+                                                    true++;
+                                                }
+                                                cnt1++;
+                                                counts++;
+                                            }
+                                            counts = index;
+                                            cnt1 = init1;
+                                        }
+                                        cnt1++;
+                                    }
+                                }
+                            }
+                            cnt1++;
+                            counts++;
                         }
-                        y = 1;
-                        cnt++;
-
+                        cnt1 = init;
+                        counts = 0;
                     }
-
-                    if ((text[cnt] == 0 || text[cnt] == '\0')) {
-                        if (y == 1) {
-                            fclose(fp);
-                            return res;
-                        } else {
-                            cnt = 0;
-                            y = 0;
-                        }
-
-                    }
-
                     cnt1++;
                 }
+                printf("%d\n",true);
                 fclose(fp);
+                return -3;
             }
+
+        }
+
+        else if(strcmp(all , "-at")==0){
+            int num;
+            scanf("%d",&num);
+            scanf("%c",&c);
+
+            if (c==' '){
+                scanf("%s" , mod);
+                if (strcmp(mod , "-byword")==0){
+                    FILE *fp;
+                    fp = fopen(address, "r+");
+                    //printf("%s\n",address);
+                    if (fp == NULL){
+                        printf("File does not exist!");
+                    }
+                    else{
+                        cnt=0;
+                        int cnt1 =0;
+                        int res;
+                        int y=0;
+                        char hfile[10000];
+                        int word = 1;
+                        int word1 =1;
+                        int u=0;
+                        int hcnt = 0;
+                        int init = 0;
+                        int counts=0;
+                        int true=0;
+                        while((c = (char)fgetc(fp)) != EOF){
+                            hfile[hcnt]=c;
+                            hcnt++;
+                        }
+                        while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                            if (hfile[cnt1] == text[0]){
+                                init = cnt1;
+                                while (hfile[cnt1] == text[counts]){
+                                    if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                                        if (cond == 0){
+                                            true++;
+                                            if (num == true){
+                                                printf("%d",word);
+                                            }
+                                        }
+                                        else if(cond == 1){
+                                            true++;
+                                            if (num == true){
+                                                printf("%d",word);
+                                            }
+                                        }
+
+                                        else if(cond == 2){
+                                            int indic = 0;
+                                            while(hfile[cnt1]!=0 && indic==0){
+                                                if(hfile[cnt1] == text[index]){
+                                                    counts=index;
+                                                    int init1 = cnt1;
+                                                    while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                        if(text[counts+1]==0){
+                                                            true++;
+                                                            if (num == true){
+                                                                printf("%d",word);
+                                                            }
+                                                        }
+                                                        cnt1++;
+                                                        counts++;
+                                                    }
+                                                    counts=index;
+                                                    cnt1=init1;
+                                                }
+                                                cnt1++;
+                                            }
+                                        }
+                                    }
+                                    cnt1++;counts++;
+                                }
+                                cnt1 = init;
+                                counts = 0;
+                            }
+                            if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                                word++;
+                            }
+                            cnt1++;
+                        }
+                        if(num > true){
+                            printf("-at argument too big\n");
+                            fclose(fp);
+                            return -3;
+                        }
+                        if (true == 0){
+                            printf("string not found\n");
+                            fclose(fp);
+                            return -3;
+                        }
+                        printf("\n");
+                        fclose(fp);
+                        return -3;
+                    }
+                }
+                else{
+                    printf("Invalid args\n");
+                    return -3;
+                }
+            }
+            else{
+                FILE *fp;
+                fp = fopen(address, "r+");
+                if (fp == NULL){
+                    printf("File does not exist!");
+                }
+                else{
+                    cnt=0;
+                    int cnt1 =0;
+                    int res;
+                    int y=0;
+                    char hfile[10000];
+                    int word = 1;
+                    int word1 =1;
+                    int u=0;
+                    int hcnt = 0;
+                    int init = 0;
+                    int counts=0;
+                    int true=0;
+                    while((c = (char)fgetc(fp)) != EOF){
+                        hfile[hcnt]=c;
+                        hcnt++;
+                    }
+                    while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                        if (hfile[cnt1] == text[0]){
+                            init = cnt1;
+                            while (hfile[cnt1] == text[counts]){
+                                if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                                    if (cond == 0){
+                                        true++;
+                                        if (num == true){
+                                            printf("%d",init+1);
+                                        }
+                                    }
+                                    else if(cond == 1){
+                                        true++;
+                                        cnt1=init;
+                                        while(hfile[cnt1-1]!=' ' && hfile[cnt1-1]!='\n' && cnt1>0){
+                                            cnt1--;
+                                        }
+                                        if (num == true){
+                                            printf("%d",cnt1+1);
+                                        }
+                                    }
+
+                                    else if(cond == 2){
+                                        int indic = 0;
+                                        while(hfile[cnt1]!=0 && indic==0){
+                                            if(hfile[cnt1] == text[index]){
+                                                counts=index;
+                                                int init1 = cnt1;
+                                                while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                                    if(text[counts+1]==0){
+                                                        true++;
+                                                        if (num == true){
+                                                            printf("%d",init+1);
+                                                        }
+                                                    }
+                                                    cnt1++;
+                                                    counts++;
+                                                }
+                                                counts=index;
+                                                cnt1=init1;
+                                            }
+                                            cnt1++;
+                                        }
+                                    }
+                                }
+                                cnt1++;counts++;
+                            }
+                            cnt1 = init;
+                            counts = 0;
+                        }
+                        if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                            word++;
+                        }
+                        cnt1++;
+                    }
+                    if(num > true){
+                        printf("-at argument too big\n");
+                        fclose(fp);
+                        return -3;
+                    }
+                    if (true == 0){
+                        printf("string not found\n");
+                        fclose(fp);
+                        return -3;
+                    }
+                    printf("\n");
+                    fclose(fp);
+                    return -3;
+                }
+            }
+        }
+    }
+
+    else if (mode == 0){
+        //printf("%s",text);
+        FILE *fp;
+        fp = fopen(address, "r+");
+        //printf("%s\n",address);
+        if (fp == NULL){
+            printf("File does not exist!");
+        }
+        else{
+            cnt=0;
+            int cnt1 =0;
+            int res;
+            int y=0;
+            char hfile[10000];
+            int word = 1;
+            int word1 =1;
+            int u=0;
+            int hcnt = 0;
+            int init = 0;
+            int counts=0;
+            int true=0;
+            while((c = (char)fgetc(fp)) != EOF){
+                hfile[hcnt]=c;
+                hcnt++;
+            }
+            while (hfile[cnt1] != 0 && hfile[cnt1] != '\0'){
+                if (hfile[cnt1] == text[0]){
+                    init = cnt1;
+                    while (hfile[cnt1] == text[counts]){
+                        if ((text[counts+1] == 0 || text[counts+1] == '\0') || (cond==2 && counts+1 == index)){
+
+                            if (cond == 0){
+                                true++;
+
+                                printf("%d\n",init+1);
+                                fclose(fp);
+                                return -3;
+
+                            }
+                            else if(cond == 1){
+                                true++;
+                                cnt1=init;
+                                while(hfile[cnt1-1]!=' ' && hfile[cnt1-1]!='\n' && cnt1>0){
+                                    cnt1--;
+                                }
+                                printf("%d\n",cnt1+1);
+                                fclose(fp);
+                                return -3;
+                            }
+
+                            else if(cond == 2){
+                                int indic = 0;
+                                while(hfile[cnt1]!=0 && indic==0){
+                                    if(hfile[cnt1] == text[index]){
+                                        counts=index;
+                                        int init1 = cnt1;
+                                        while(hfile[cnt1] == text[counts] && text[counts]!=0){
+                                            if(text[counts+1]==0){
+                                                true++;
+                                                printf("%d\n",init+1);
+                                                fclose(fp);
+                                                return -3;
+                                            }
+                                            cnt1++;
+                                            counts++;
+                                        }
+                                        counts=index;
+                                        cnt1=init1;
+                                    }
+                                    cnt1++;
+                                }
+                            }
+                        }
+                        cnt1++;counts++;
+                    }
+                    cnt1 = init;
+                    counts = 0;
+                }
+                if (hfile[cnt1] == ' ' || hfile[cnt1] == '\n'){
+                    word++;
+                }
+                cnt1++;
+            }
+            if (true == 0){
+                printf("string not found\n");
+                fclose(fp);
+                return -3;
+            }
+            printf("\n");
+            fclose(fp);
+            return -3;
         }
     }
 
