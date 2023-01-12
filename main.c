@@ -2704,6 +2704,8 @@ void undo(){
 
 void indent(){
     char address[200]={0};
+    char text[10000] = {0};
+    char textn[10000]={0};
     int cnt = 0;
     char c = 0;
     scanf("%c",&c);
@@ -2736,10 +2738,168 @@ void indent(){
         printf("file not found\n");
         return;
     }
+    cnt=0;
+    int br1=0;
+    int br2=0;
+    while ((text[cnt]=(char)getc(fp)) != EOF){
+        if (text[cnt] == '{'){
+            br1++;
+        }
+        else if(text[cnt] == '}'){
+            br2++;
+        }
+        if (br2 > br1){
+            fclose(fp);
+            printf("Invalid brackets\n");
+            return;
+        }
+        cnt++;
+    }
+    if (br1 != br2){
+        fclose(fp);
+        printf("Invalid brackets\n");
+        return;
+    }
+    fclose(fp);
 
+    int tab=0;
+    cnt=0;
+    int n=0;
+    while (text[cnt] !=0){
+        if(text[cnt] == ' '){
+            int init=cnt;
+            while (text[cnt] == ' '){
+                cnt++;
+            }
+            cnt--;
+            n--;
+        }
+        else if(text[cnt] == '{'){
+            tab++;
+            if(n!=0){
+                if(textn[n-1] != '\n' && textn[n-1] != '\t'){
+                    textn[n++]=' ';
+                }
+            }
+            if (textn[n-1] == '\n'){
+                for (int i=0 ; i<tab-1 ; i++){
+                    textn[n++]='\t';
+                }
+            }
+
+            textn[n++]='{';
+            textn[n++]=' ';
+            cnt++;
+            while(text[cnt]==' '){
+                cnt++;
+            }
+            cnt--;
+            textn[n++]='\n';
+            n--;
+        }
+        else if(text[cnt] == '\n'){
+            textn[n++]='\n';
+            for (int i=0 ; i<tab ; i++){
+                textn[n++]='\t';
+            }
+            n--;
+        }
+        else if(text[cnt] == '}'){
+
+            tab--;
+            if(textn[n-1]!='\n'){
+                textn[n++]='\n';
+            }
+            for (int i=0 ; i<tab ; i++){
+                textn[n++]='\t';
+            }
+            textn[n++] = '}';
+            cnt++;
+            while(text[cnt]==' '){
+                cnt++;
+            }
+            cnt--;
+            textn[n] = '\n';
+        }
+        else{
+            if (textn[n-1] == '\n'){
+                for (int i=0 ; i<tab ; i++){
+                    textn[n++]='\t';
+                }
+            }
+            textn[n]=text[cnt];
+        }
+        n++;
+        cnt++;
+    }
+    FILE* fi=fopen(address , "w");
+    cnt=0;
+    while (textn[cnt] != 0 && textn[cnt] != EOF){
+        fprintf(fi , "%c",textn[cnt]);
+        cnt++;
+    }
+    fclose(fi);
 
 }
 
+void compare(){
+    char address[100];
+    char address2[100];
+    char text[10000];
+    int cnt = 0;
+    char c = 0;
+    scanf("%c",&c);
+    if (c == '"'){
+        scanf("%c",&c);
+        while(c != '"'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    else{
+        while(c != ' '){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+
+    scanf("%c",&c);
+    if (c == '"'){
+        scanf("%c",&c);
+        while(c != '"'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address2[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    else{
+        while(c != '\n'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address2[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+
+
+}
 
 int command(char list[]) {
     if (strcmp(list, "exit") == 0) {
@@ -2804,6 +2964,9 @@ int command(char list[]) {
     }
     if (strcmp(list , "auto-indent")==0){
         return 12;
+    }
+    if (strcmp(list , "compare")==0){
+        return 13;
     }
 
     return 0;
@@ -3041,19 +3204,11 @@ int main() {
 
 
         if (com == 12){
-            char dum;
-            char file[30];
-            scanf("%s ", file);
-            if (strcmp(file, "--file") == 0) {
-                indent();
+            indent();
+        }
 
-            } else {
-                char c = 0;
-                while (c != '\n') {
-                    scanf("%c", &c);
-                }
-                printf("Invalid command\n");
-            }
+        if (com == 13){
+            compare();
         }
     }
 
