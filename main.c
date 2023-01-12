@@ -2845,7 +2845,8 @@ void indent(){
 void compare(){
     char address[100];
     char address2[100];
-    char text[10000];
+    char text[10000]={0};
+    char text2[10000]={0};
     int cnt = 0;
     char c = 0;
     scanf("%c",&c);
@@ -2873,6 +2874,7 @@ void compare(){
         strcpy(address , appendAddress(ADD , address));
     }
 
+    cnt=0;
     scanf("%c",&c);
     if (c == '"'){
         scanf("%c",&c);
@@ -2884,7 +2886,7 @@ void compare(){
             cnt++;
             scanf("%c",&c);
         }
-        strcpy(address , appendAddress(ADD , address));
+        strcpy(address2 , appendAddress(ADD , address2));
     }
     else{
         while(c != '\n'){
@@ -2895,9 +2897,114 @@ void compare(){
             cnt++;
             scanf("%c",&c);
         }
-        strcpy(address , appendAddress(ADD , address));
+        strcpy(address2 , appendAddress(ADD , address2));
     }
 
+    FILE* f1=fopen(address , "r+");
+    FILE* f2=fopen(address2 , "r+");
+    if (f1 == NULL || f2 == NULL){
+        printf("file not found\n");
+        fclose(f1);
+        fclose(f2);
+        return;
+    }
+    cnt=0;
+    c=0;
+    int line1=1;
+    while ((c=(char)getc(f1)) != EOF){
+        text[cnt++]=c;
+        if (c=='\n'){
+            line1++;
+        }
+    }
+    cnt=0;
+    int line2=1;
+    c=0;
+    while ((c=(char)getc(f2)) != EOF){
+        text2[cnt++]=c;
+        if (c=='\n'){
+            line2++;
+        }
+    }
+    fclose(f1);
+    fclose(f2);
+
+    int i=0;
+    int j=0;
+    int ii=1;
+    int jj=1;
+    char l1[1000]={0};
+    char l2[1000]={0};
+    char w1[30]={0};
+    char w2[30]={0};
+    int wi=0;
+    int wj=0;
+    int li=0;
+    int lj=0;
+    while (text[i]!=0 || text2[j] !=0){
+        if (text[i] == 0){
+            printf(">>>>>>>>>>>> #%d - #%d >>>>>>>>>>>>\n" , ii , line2);
+            while (text2[j] !=0 && text2[j] !=EOF){
+                printf("%c",text2[j++]);
+            }
+            printf("\n");
+            return;
+        }
+        else if(text2[j]==0){
+            printf("<<<<<<<<<<<< #%d - #%d <<<<<<<<<<<<\n" , ii , line1);
+            while (text[i] !=0 && text[i] !=EOF){
+                printf("%c",text[i++]);
+            }
+            printf("\n");
+            return;
+        }
+        else if (text[i] != text2[j]){
+            printf("============ #%d ============\n",ii);
+            ii++;jj++;
+            while(text[i]!='\n' && text[i]!=0 && text[i]!=EOF){
+                l1[li++]=text[i];
+                i++;
+            }
+            while (text2[j] != '\n' && text2[j] != 0 && text2[j] != EOF){
+                l2[lj++]=text2[j];
+                j++;
+            }
+            j++;i++;
+            li=0;lj=0;
+            while(l1[li] !=0 && l1[li] !=EOF){
+                printf("%c",l1[li]);
+                l1[li++]=0;
+            }
+            printf("\n");
+            li=0;
+            while(l2[lj] !=0 && l2[lj] !=EOF){
+                printf("%c",l2[lj]);
+                l2[lj++]=0;
+            }
+            printf("\n");
+            lj=0;
+        }
+        else{
+            if(text2[j] == '\n'){
+                ii++;jj++;i++;j++;
+                li=0;lj=0;
+                while(l1[li] !=0 && l1[li] !=EOF){
+                    l1[li++]=0;
+                }
+                while(l2[lj] !=0 && l2[lj] !=EOF){
+                    l2[lj++]=0;
+                }
+                li=0;lj=0;
+            }
+
+            l1[li++]=text[i];
+            l2[lj++]=text2[j];
+            i++;
+            j++;
+        }
+
+    }
+    printf("\n");
 
 }
 
