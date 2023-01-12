@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <Windows.h>
+
 
 char *ADD = "F:\\Uni\\Fop\\Project";
 char *ADDclip = "F:\\Uni\\Fop\\Project\\clipboard.txt";
@@ -27,6 +29,39 @@ char *appendAddress(char str1[], char str2[]) {
     return fin;
 }
 
+void createUndo(char address[]){
+    int cnt=0;
+    char add[100];
+    for (int i=0 ; i<100 ; i++){
+        add[i]=0;
+    }
+    char c;
+    while (address[cnt] != '.'){
+        add[cnt] = address[cnt];
+        cnt++;
+    }
+    add[cnt] = '-';cnt++;
+    add[cnt] = 'u';cnt++;
+    add[cnt] = 'n';cnt++;
+    add[cnt] = 'd';cnt++;
+    add[cnt] = 'o';cnt++;
+    add[cnt] = '.';cnt++;
+    add[cnt] = 't';cnt++;
+    add[cnt] = 'x';cnt++;
+    add[cnt] = 't';cnt++;
+
+    FILE* fp=fopen(add,"w");
+    DWORD attributes = GetFileAttributes(add);
+    SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
+
+    FILE* fi=fopen(address,"r+");
+    cnt=0;
+    while((c=(char)getc(fi))!=EOF){
+        fprintf(fp,"%c",c);
+    }
+    fclose(fp);
+    fclose(fi);
+}
 
 void createFile(char list[]) {
 
@@ -95,7 +130,6 @@ void createFile(char list[]) {
     }
 }
 
-
 int insert() {
 
     char str[30];
@@ -120,7 +154,6 @@ int insert() {
             scanf("%c",&c);
         }
         strcpy(address , appendAddress(ADD , address));
-        //printf("%s",address);
     }
     else{
         while(c != ' '){
@@ -133,7 +166,7 @@ int insert() {
         }
         strcpy(address , appendAddress(ADD , address));
     }
-    //printf("%s\n" , address);
+    createUndo(address);
 
     scanf("%s ",str);
     if (strcmp(str , "--str") == 0){
@@ -411,6 +444,7 @@ void remve() {
         }
         strcpy(address , appendAddress(ADD , address));
     }
+    createUndo(address);
 
     scanf("%s ",pos);
     if (strcmp(pos , "--pos") == 0){
@@ -698,6 +732,7 @@ void cut(){
         }
         strcpy(address , appendAddress(ADD , address));
     }
+    createUndo(address);
 
     scanf("%s ",pos);
     if (strcmp(pos , "--pos") == 0){
@@ -872,6 +907,7 @@ void paste(){
         }
         strcpy(address , appendAddress(ADD , address));
     }
+    createUndo(address);
 
     scanf("%s ",pos);
     if (strcmp(pos , "--pos") == 0){
@@ -1945,7 +1981,7 @@ int find(){
 
 void replace(){
     char address[200];
-    char str1[10000];
+    char str1[1000] = {0};
     char str2[10000];
     char st[30];
     char file[30];
@@ -2019,16 +2055,12 @@ void replace(){
                     scanf("%c", &c);
                 }
             } else {
-                //printf("%c",c);
                 str1[cnt] = c;
                 cnt++;
                 scanf("%c", &c);
             }
-
         }
-
     }
-
 
     scanf("%s ", st);
     cnt=0;
@@ -2098,6 +2130,7 @@ void replace(){
                 }
                 strcpy(address , appendAddress(ADD , address));
             }
+            createUndo(address);
 
             FILE *fp;
             fp = fopen(address, "r+");
@@ -2113,7 +2146,6 @@ void replace(){
                         count++;
                     }
                     fclose(fp);
-
                     count = 0;
                     int counts = 0;
                     int size = 0;
@@ -2182,6 +2214,7 @@ void replace(){
                             fprintf(fil , "%c" , htext[cnt]);
                             cnt++;
                         }
+                        printf("Success\n");
                         fclose(fil);
 
                     }
@@ -2207,6 +2240,7 @@ void replace(){
                         int u =0;
                         int indexc=0;
                         int sizec=0;
+
                         while (htext[count] != 0 && htext[count] != '\0'){
                             if (htext[count] == str1[0]){
                                 init = count;
@@ -2272,6 +2306,7 @@ void replace(){
                                 }
                             }
                             fclose(fil);
+                            printf("Success\n");
 
                         }
                     }
@@ -2362,7 +2397,7 @@ void replace(){
                                 }
                             }
                             fclose(fil);
-
+                            printf("Success\n");
                         }
                     }
                     else{
@@ -2608,9 +2643,102 @@ void grep(){
 }
 
 void undo(){
+    char address[200]={0};
+    char add[100]={0};
+    int cnt = 0;
+    char c = 0;
+    scanf("%c",&c);
+    if (c == '"'){
+        scanf("%c",&c);
+        while(c != '"'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    else{
+        while(c != '\n'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
 
+    cnt=0;
+    while (address[cnt] != '.'){
+        add[cnt] = address[cnt];
+        cnt++;
+    }
+    add[cnt] = '-';cnt++;
+    add[cnt] = 'u';cnt++;
+    add[cnt] = 'n';cnt++;
+    add[cnt] = 'd';cnt++;
+    add[cnt] = 'o';cnt++;
+    add[cnt] = '.';cnt++;
+    add[cnt] = 't';cnt++;
+    add[cnt] = 'x';cnt++;
+    add[cnt] = 't';cnt++;
+
+    FILE* fp=fopen(add,"r+");
+    if (fp == NULL){
+        printf("no action to undo\n");
+        return;
+    }
+    FILE* fi=fopen(address,"r+");
+    cnt=0;
+    while((c=(char)getc(fp))!=EOF){
+        fprintf(fi,"%c",c);
+    }
+    fclose(fp);
+    fclose(fi);
+    remove(add);
 }
 
+void indent(){
+    char address[200]={0};
+    int cnt = 0;
+    char c = 0;
+    scanf("%c",&c);
+    if (c == '"'){
+        scanf("%c",&c);
+        while(c != '"'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+    else{
+        while(c != '\n'){
+            if (c == '/'){
+                c = '\\';
+            }
+            address[cnt] = c;
+            cnt++;
+            scanf("%c",&c);
+        }
+        strcpy(address , appendAddress(ADD , address));
+    }
+
+    FILE* fp=fopen(address,"r+");
+    if (fp==NULL){
+        printf("file not found\n");
+        return;
+    }
+
+
+}
 
 
 int command(char list[]) {
@@ -2671,6 +2799,12 @@ int command(char list[]) {
     if (strcmp(list , "grep")==0){
         return 10;
     }
+    if (strcmp(list , "undo")==0){
+        return 11;
+    }
+    if (strcmp(list , "auto-indent")==0){
+        return 12;
+    }
 
     return 0;
 }
@@ -2722,7 +2856,6 @@ int main() {
             break;
         }
 
-
         if (com == 2) {
             char dum;
             char file[30];
@@ -2739,7 +2872,6 @@ int main() {
                 printf("Invalid command\n");
             }
         }
-
 
         if (com == 1) {
             char dum;
@@ -2870,7 +3002,6 @@ int main() {
             }
         }
 
-
         if (com == 9){
             char dum;
             char str[30];
@@ -2892,7 +3023,38 @@ int main() {
 
         }
 
+        if (com == 11){
+            char dum;
+            char file[30];
+            scanf("%s ", file);
+            if (strcmp(file, "--file") == 0) {
+                undo();
 
+            } else {
+                char c = 0;
+                while (c != '\n') {
+                    scanf("%c", &c);
+                }
+                printf("Invalid command\n");
+            }
+        }
+
+
+        if (com == 12){
+            char dum;
+            char file[30];
+            scanf("%s ", file);
+            if (strcmp(file, "--file") == 0) {
+                indent();
+
+            } else {
+                char c = 0;
+                while (c != '\n') {
+                    scanf("%c", &c);
+                }
+                printf("Invalid command\n");
+            }
+        }
     }
 
     return 0;
