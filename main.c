@@ -3,11 +3,21 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <Windows.h>
+#include <dirent.h>
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 
+int depth;
 char *ADD = "F:\\Uni\\Fop\\Project";
 char *ADDclip = "F:\\Uni\\Fop\\Project\\clipboard.txt";
-
+char *DIRE = "F:\\Uni\\Fop\\Project\\root";
 
 char *appendAddress(char str1[], char str2[]) {
     char *fin = calloc(1000, sizeof(char));
@@ -3109,6 +3119,53 @@ void compare(){
 
 }
 
+void tree(char *basePath, const int root)
+{
+    int i;
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(basePath);
+
+    if (!dir)
+        return;
+
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && root<depth*2)
+        {
+            for (i=0; i<root; i++)
+            {
+                if (i%2 == 0 || i == 0)
+                    printf(ANSI_COLOR_CYAN"%c%s", 179,ANSI_COLOR_RESET);
+                else
+                    printf(" ");
+
+            }
+
+            printf(ANSI_COLOR_CYAN"%c%c" , 195, 196);
+            printf(ANSI_COLOR_RED"%s\n%s", dp->d_name,ANSI_COLOR_RESET);
+
+            strcpy(path, basePath);
+            strcat(path, "/");
+            strcat(path, dp->d_name);
+            tree(path, root + 2);
+        }
+    }
+    closedir(dir);
+}
+
+void treefun(){
+    scanf("%d",&depth);
+    if (depth < -1){
+        printf("invalid depth\n");
+        return;
+    }
+    if (depth == -1){
+        depth = 50;
+    }
+    tree(DIRE , 0);
+}
+
 int command(char list[]) {
     if (strcmp(list, "exit") == 0) {
 
@@ -3175,6 +3232,9 @@ int command(char list[]) {
     }
     if (strcmp(list , "compare")==0){
         return 13;
+    }
+    if (strcmp(list , "tree")==0){
+        return 14;
     }
 
     return 0;
@@ -3417,6 +3477,10 @@ int main() {
 
         if (com == 13){
             compare();
+        }
+
+        if (com == 14){
+            treefun();
         }
     }
 
