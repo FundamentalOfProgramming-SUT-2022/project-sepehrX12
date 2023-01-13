@@ -2842,6 +2842,41 @@ void indent(){
 
 }
 
+int compareFn(char list[] , char list1[]){
+    int word=1;
+    int wordnum=0;
+    int res;
+    int i=0;
+    int j=0;
+    i=0;
+    while (list[i] != 0 && list[i] != EOF){
+        if (list[i] != list1[j]){
+            wordnum++;
+            if (wordnum > 1){
+                return -1;
+            }
+            res=word;
+            while(list[i] != ' ' && list[i] != 0 && list[i] != '\n'){
+                i++;
+            }
+            while(list1[j] != ' ' && list1[j] != 0 && list1[j] != '\n'){
+                j++;
+            }
+            j--;i--;
+        }
+        else if(list[i] == ' '){
+            word++;
+        }
+        i++;j++;
+    }
+    if (wordnum>1){
+        return -1;
+    }
+    else{
+        return res;
+    }
+}
+
 void compare(){
     char address[100];
     char address2[100];
@@ -2969,20 +3004,86 @@ void compare(){
                 l2[lj++]=text2[j];
                 j++;
             }
+            int res = compareFn(l2,l1);
             j++;i++;
             li=0;lj=0;
-            while(l1[li] !=0 && l1[li] !=EOF){
-                printf("%c",l1[li]);
-                l1[li++]=0;
+            if (res == -1){
+                while(l1[li] !=0 && l1[li] !=EOF){
+                    printf("%c",l1[li]);
+                    l1[li++]=0;
+                }
+                printf("\n");
+                li=0;
+                while(l2[lj] !=0 && l2[lj] !=EOF){
+                    printf("%c",l2[lj]);
+                    l2[lj++]=0;
+                }
+                printf("\n");
+                lj=0;
             }
-            printf("\n");
-            li=0;
-            while(l2[lj] !=0 && l2[lj] !=EOF){
-                printf("%c",l2[lj]);
-                l2[lj++]=0;
+            else{
+                int word=1;
+                while(l1[li] !=0 && l1[li] !=EOF){
+                    if (l1[li] == ' '){
+                        word++;
+                    }
+                    else if (li == 0 && res == 1){
+                        printf(">>");
+                        while (l1[li] != ' ' && l1[li] != 0){
+                            printf("%c",l1[li]);
+                            l1[li++]=0;
+                        }
+                        printf("<<");
+                        continue;
+                    }
+                    else if(word == res){
+                        printf(">>");
+                        while (l1[li] != ' ' && l1[li] != 0){
+                            printf("%c",l1[li]);
+                            l1[li++]=0;
+                        }
+                        printf("<<");
+                        continue;
+                    }
+
+                    printf("%c",l1[li]);
+                    l1[li++]=0;
+                }
+                printf("\n");
+                li=0;
+
+                word=1;
+                while(l2[lj] !=0 && l2[lj] !=EOF){
+                    if (l2[lj] == ' '){
+                        word++;
+                    }
+                    else if (lj == 0 && res == 1){
+                        printf(">>");
+                        while (l2[lj] != ' ' && l2[lj] != 0){
+                            printf("%c",l2[lj]);
+                            l2[lj++]=0;
+                        }
+                        printf("<<");
+                        continue;
+                    }
+                    else if(word == res){
+                        printf(">>");
+                        while (l2[lj] != ' ' && l2[lj] != 0){
+                            printf("%c",l2[lj]);
+                            l2[lj++]=0;
+                        }
+                        printf("<<");
+                        continue;
+                    }
+
+                    printf("%c",l2[lj]);
+                    l2[lj++]=0;
+                }
+
+                printf("\n");
+                lj=0;
             }
-            printf("\n");
-            lj=0;
+
         }
         else{
             if(text2[j] == '\n'){
