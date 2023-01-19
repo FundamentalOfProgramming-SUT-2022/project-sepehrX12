@@ -58,18 +58,50 @@ void createUndo(char address[]){
     add[cnt] = 't';cnt++;
     add[cnt] = 'x';cnt++;
     add[cnt] = 't';cnt++;
+    add[cnt] = '\0';cnt++;
 
-    FILE* fffp=fopen(add,"w");
-    DWORD attributes = GetFileAttributes(add);
-    SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
-
-    FILE* fiii=fopen(address,"r+");
+    FILE* fffp=fopen(add,"r+");
+    if (fffp == NULL){
+        fclose(fffp);
+        fffp = fopen(add , "w");
+        DWORD attributes = GetFileAttributes(add);
+        SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
+    }
+    else{
+        fclose(fffp);
+        remove(add);
+        fffp = fopen(add , "w");
+        DWORD attributes = GetFileAttributes(add);
+        SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
+    }
+    FILE* fiii=fopen(address,"r");
     cnt=0;
     while((c=(char)getc(fiii))!=EOF){
         fprintf(fffp,"%c",c);
     }
     fclose(fffp);
     fclose(fiii);
+}
+
+int undofinder(char list[]){
+    char aa[5] = "undo";
+    int cnt=0;int j=0;
+    int res=0;
+    while (list[cnt] != 0 && list[cnt] != '\0'){
+        if (list[cnt] == '-'){
+            cnt++;
+            while (list[cnt] != 0 && list[cnt] != '\0' && list[cnt]==aa[j]){
+                res++;
+                cnt++;j++;
+            }
+            if (res==4){
+                return 1;
+            }
+            j=0;
+        }
+        cnt++;
+    }
+    return 0;
 }
 
 void createFile(char list[]) {
@@ -83,7 +115,6 @@ void createFile(char list[]) {
     if (list[0] == '"') {
         count += 1;
         while (list[count] != '"' && list[count] != '\n') {
-            count += 1;
             c = list[count];
             int cnt = 0;
             while (list[count] != '/' && list[count] != '"' && list[count] != '\n') {
@@ -104,9 +135,17 @@ void createFile(char list[]) {
             if (check != 1) {
                 mkdir(address1);
             }
+            count += 1;
         }
         FILE *fp;
-        fp = fopen(address1, "w");
+        fp = fopen(address1, "r+");
+        if (fp != NULL){
+            printf("file already exists\n");
+        }
+        else{
+            fclose(fp);
+            fopen(address1,"w");
+        }
         fclose(fp);
 
     } else {
@@ -132,9 +171,15 @@ void createFile(char list[]) {
 
         }
 
-        //printf("%s\n", address1);
         FILE *fp;
-        fp = fopen(address1, "w");
+        fp = fopen(address1, "r+");
+        if (fp != NULL){
+            printf("file already exists\n");
+        }
+        else{
+            fclose(fp);
+            fopen(address1,"w");
+        }
         fclose(fp);
     }
 }
@@ -175,7 +220,7 @@ int insert() {
         }
         strcpy(address , appendAddress(ADD , address));
     }
-    createUndo(address);
+    //createUndo(address);
 
     scanf("%s ",str);
     if (strcmp(str , "--str") == 0){
@@ -192,27 +237,23 @@ int insert() {
                 cnt++;
                 scanf("%c" , &c);
                 if (c == '"'){
-                    num++;
-                    if (num %2 == 0){
-                        for (int i = 0; i<6 ; i++){
-                            scanf("%c",&memo[i]);
-                            //printf("%c",memo[i]);
-                        }
-                        if (strcmp(memo , " --pos") == 0){
-                             break;
-                        }
-                        text[cnt] = c;
-                        cnt++;
-                        for (int i = 0; i<6 ; i++){
-                            text[cnt] = memo[i];
-                            cnt++;
-                        }
-                        scanf("%c" , &c);
-                    }
 
+                    for (int i = 0; i<6 ; i++){
+                        scanf("%c",&memo[i]);
+                            //printf("%c",memo[i]);
+                    }
+                    if (strcmp(memo , " --pos") == 0){
+                        break;
+                    }
+                    text[cnt] = c;
+                    cnt++;
+                    for (int i = 0; i<6 ; i++){
+                        text[cnt] = memo[i];
+                        cnt++;
+                    }
+                    scanf("%c" , &c);
                 }
             }
-
         }
         else{
             cond = -1;
@@ -403,7 +444,7 @@ int insertarman() {
         }
         strcpy(address , appendAddress(ADD , address));
     }
-    //createUndo(address);
+    createUndo(address);
 
     FILE* arm = fopen(ARM,"r+");
 
@@ -732,90 +773,75 @@ void copy() {
         if (strcmp(size , "-size") == 0) {
             scanf("%d", &sizei);
             scanf(" -%c" , &fb);
+
+            FILE *fp;
+            fp = fopen(address, "r+");
+
+            FILE *clip;
+            clip = fopen(ADDclip, "w");
+
+            if (fp == NULL){
+                printf("File does not exist\n");
+                fclose(fp);
+                return;
+            }
+
             if (fb == 'f'){
-                FILE *fp;
-                fp = fopen(address, "r+");
-                if (fp == NULL){
-                    printf("File does not exist\n");
-                    fclose(fp);
-                }
-                else{
-                    int line1 = 1;
-                    int start1 = -1;
-                    int count = 0;
-                    while ((c = (char)fgetc(fp)) != EOF){
-                        start1++;
-                        if (start1 == strt && lno == line1){
-                            for (int i=0 ; i<sizei ; i++){
-                                text[count] = c;
-                                count++;
-                                c = (char)fgetc(fp);
-                            }
-                            continue;
+                int line1 = 1;
+                int start1 = -1;
+                int count = 0;
+                while ((c = (char)fgetc(fp)) != EOF){
+                    start1++;
+                    if (start1 == strt && lno == line1){
+                        for (int i=0 ; i<sizei ; i++){
+                            fprintf(clip , "%c",c);
+                            c = (char)fgetc(fp);
                         }
-                        if (c == '\n'){
-                            line1++;
-                            start1 = -1;
-                        }
-
+                        continue;
                     }
-                    text[count] = EOF;
-                    fclose(fp);
-
-                    FILE *clip;
-                    clip = fopen(ADDclip, "w");
-                    int i = 0;
-                    while (text[i] != EOF){
-                        fprintf(clip,"%c",text[i]);
-                        i++;
+                    if (c == '\n'){
+                        line1++;
+                        start1 = -1;
                     }
-                    fclose(clip);
                 }
-
+                //fprintf(clip , "%c" , EOF);
+                fclose(fp);
+                fclose(clip);
             }
             else if(fb == 'b'){
-                FILE *fp;
-                fp = fopen(address, "r+");
-                if (fp == NULL){
-                    printf("File does not exist\n");
-                    fclose(fp);
-                }
-                else{
-                    int line1 = 1;
-                    int start1 = -1;
-                    int count = 0;
-                    int ii;
-                    while ((c = (char)fgetc(fp)) != EOF){
-                        start1++;
-                        text[count] = c;
-                        if (start1 == strt && line1 == lno){
-                            ii = count;
-                        }
-                        if (c == '\n'){
-                            line1++;
-                            start1 = -1;
-                        }
-                        count++;
+                int line1 = 1;
+                int start1 = -1;
+                int count = 0;
+                int ii;
+                while ((c = (char)fgetc(fp)) != EOF){
+                    start1++;
+                    text[count] = c;
+                    if (start1 == strt && line1 == lno){
+                        ii = count;
                     }
-
-                    text[count] = EOF;
-                    fclose(fp);
-
-                    FILE *fil;
-                    fil = fopen(ADDclip, "w");
-                    int i = -1;
-                    start1 = -1;
-                    line1 = 1;
-                    while (text[++i] != EOF){
-
-                        if ((i >= (ii-sizei)+1) && (i <= ii)){
-                            fprintf(fil,"%c",text[i]);
-                        }
+                    if (c == '\n'){
+                        line1++;
+                        start1 = -1;
                     }
-                    fclose(fil);
+                    count++;
                 }
+
+                text[count] = EOF;
+                fclose(fp);
+
+                FILE *fil;
+                fil = fopen(ADDclip, "w");
+                int i = -1;
+                start1 = -1;
+                line1 = 1;
+                while (text[++i] != EOF){
+
+                    if ((i >= (ii-sizei)+1) && (i <= ii)){
+                        fprintf(fil,"%c",text[i]);
+                    }
+                }
+                fclose(fil);
             }
-
             else{
                 printf("Invalid arguments\n");
             }
@@ -1128,11 +1154,12 @@ int find(){
                 if(arman==0)scanf("%c",&c);
                 else fscanf(arm,"%c",&c);
             }
-            if (c == '*'){
-                if(arman==0)scanf("%c",&c);
-                else fscanf(arm,"%c",&c);
+            else if (c == '*'){
+                if(arman==0)scanf("%c",&c1);
+                else fscanf(arm,"%c",&c1);
                 if(c1 == '"'){
                     cond = 0;
+                    c=c1;
                 }
                 else{
                     cond = 2;
@@ -1143,7 +1170,7 @@ int find(){
                     else fscanf(arm,"%c",&c);
                 }
             }
-            if (c == 92) {
+            else if (c == 92) {
                 if(arman==0)scanf("%c",&c1);
                 else fscanf(arm,"%c",&c1);
                 if (c1 == '*' || c1 == '"') {
@@ -1175,9 +1202,9 @@ int find(){
                 cond = 1;
                 scanf("%c",&c);
             }
-            else if (c == '*'){
+            else if (c == ' '){
                 scanf("%c", &c1);
-                if(c1 == ' '){
+                if(c1 == '"'){
                     cond = 0;
                     c=c1;
                 }
@@ -2745,6 +2772,11 @@ int grepFunc(char address[] , char str[] , int mode,FILE* armm){
     int res=0;
     char text[100][100];
     char c;
+    for (int ii=0 ; ii<100 ; ii++){
+        for (int jj=0 ; jj<100 ; jj++){
+            text[ii][jj]=0;
+        }
+    }
 
     FILE *fp = fopen(address,"r+");
     if (fp == NULL){
@@ -2760,6 +2792,9 @@ int grepFunc(char address[] , char str[] , int mode,FILE* armm){
             i++;
             j=0;
         }
+    }
+    if (text[i][j] == EOF){
+        text[i][j] = '\n';
     }
     fclose(fp);
     if (mode == 0){
@@ -3133,6 +3168,7 @@ void indent(){
         printf("file not found\n");
         return;
     }
+    createUndo(address);
     cnt=0;
     int br1=0;
     int br2=0;
@@ -3571,7 +3607,7 @@ void tree(char *basePath, const int root,FILE* arm)
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && root<depth*2)
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && root<depth*2 && undofinder(dp->d_name) == 0)
         {
             for (i=0; i<root; i++)
             {
@@ -3833,6 +3869,7 @@ int main() {
                         cnt++;
                         scanf("%c",&c);
                     }
+                    scanf("%c",&c);
                     strcpy(address , appendAddress(ADD , address));
                 }
                 else{
@@ -3847,7 +3884,7 @@ int main() {
                     strcpy(address , appendAddress(ADD , address));
                 }
                 if (c=='\n'){
-                    printf("%s",address);
+                    //printf("%s",address);
                     cat(address);
                 }
                 else if (c == ' '){
