@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <Windows.h>
+#include <sys/stat.h>
+#include <Windows.h>
 #include <dirent.h>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -48,18 +49,31 @@ void createUndo(char address[]){
         add[cnt] = address[cnt];
         cnt++;
     }
-    while(address[cnt] != 92){
-        cnt--;
-    }
-    add[cnt+1] = '.';
-    cnt++;
-    while (address[cnt] != 0){
-        add[cnt+1] = address[cnt];
-        cnt++;
-    }
+    add[cnt] = '-';cnt++;
+    add[cnt] = 'u';cnt++;
+    add[cnt] = 'n';cnt++;
+    add[cnt] = 'd';cnt++;
+    add[cnt] = 'o';cnt++;
+    add[cnt] = '.';cnt++;
+    add[cnt] = 't';cnt++;
+    add[cnt] = 'x';cnt++;
+    add[cnt] = 't';cnt++;
+    add[cnt] = '\0';cnt++;
 
-
-    FILE* fffp=fopen(add,"w");
+    FILE* fffp=fopen(add,"r+");
+    if (fffp == NULL){
+        fclose(fffp);
+        fffp = fopen(add , "w");
+        DWORD attributes = GetFileAttributes(add);
+        SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
+    }
+    else{
+        fclose(fffp);
+        remove(add);
+        fffp = fopen(add , "w");
+        DWORD attributes = GetFileAttributes(add);
+        SetFileAttributes(add,attributes+FILE_ATTRIBUTE_HIDDEN);
+    }
     FILE* fiii=fopen(address,"r");
     cnt=0;
     while((c=(char)getc(fiii))!=EOF){
@@ -226,7 +240,7 @@ int insert() {
 
                     for (int i = 0; i<6 ; i++){
                         scanf("%c",&memo[i]);
-                            //printf("%c",memo[i]);
+                        //printf("%c",memo[i]);
                     }
                     if (strcmp(memo , " --pos") == 0){
                         break;
@@ -1251,7 +1265,7 @@ int find(){
         else if (c == ' '){
             scanf("%c",&c);
             if(c=='-')
-            mode = 1;
+                mode = 1;
             else{
                 char c3,c2;
                 scanf("%c%c",&c3,&c2);
@@ -3088,23 +3102,21 @@ void undo(){
         strcpy(address , appendAddress(ADD , address));
     }
 
-    //printf("%s\n",address);
     cnt=0;
     while (address[cnt] != '.'){
         add[cnt] = address[cnt];
         cnt++;
     }
-    while(address[cnt] != 92){
-        cnt--;
-    }
-    add[cnt+1] = '.';
-    cnt++;
-    while (address[cnt] != 0){
-        add[cnt+1] = address[cnt];
-        cnt++;
-    }
+    add[cnt] = '-';cnt++;
+    add[cnt] = 'u';cnt++;
+    add[cnt] = 'n';cnt++;
+    add[cnt] = 'd';cnt++;
+    add[cnt] = 'o';cnt++;
+    add[cnt] = '.';cnt++;
+    add[cnt] = 't';cnt++;
+    add[cnt] = 'x';cnt++;
+    add[cnt] = 't';cnt++;
 
-    //printf("%s",add);
     FILE* fp=fopen(add,"r+");
     if (fp == NULL){
         printf("no action to undo\n");
@@ -3595,7 +3607,7 @@ void tree(char *basePath, const int root,FILE* arm)
 
     while ((dp = readdir(dir)) != NULL)
     {
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && root<depth*2 && dp->d_name[0] != '.')
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && root<depth*2 && undofinder(dp->d_name) == 0)
         {
             for (i=0; i<root; i++)
             {
