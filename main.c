@@ -108,7 +108,7 @@ void createFile(char list[]) {
 
     char c = 0;
     int check = 0;
-    char dirname[70];
+    char dirname[70]={0};
     int count = 0;
     char address1[100] = {0};
     strcpy(address1, ADD);
@@ -186,13 +186,13 @@ void createFile(char list[]) {
 
 int insert() {
 
-    char str[30];
-    char pos[30];
+    char str[30]={0};
+    char pos[30]={0};
     int lno;
     int strt;
-    char address[200];
+    char address[200]={0};
     char text[5000] = {0};
-    char textNew[10000];
+    char textNew[10000]={0};
     int cnt = 0;
     char c = 0;
     int cond = 0;
@@ -410,13 +410,13 @@ int insert() {
 
 int insertarman() {
 
-    char str[30];
-    char pos[30];
+    char str[30]={0};
+    char pos[30]={0};
     int lno;
     int strt;
-    char address[200];
+    char address[200]={0};
     char text[5000] = {0};
-    char textNew[10000];
+    char textNew[10000]={0};
     int cnt = 0;
     char c = 0;
     int cond = 0;
@@ -731,8 +731,8 @@ void remve() {
 
 void copy() {
 
-    char size[30];
-    char pos[30];
+    char size[30]={0};
+    char pos[30]={0};
     int lno;
     int strt;
     int sizei;
@@ -857,15 +857,15 @@ void copy() {
 
 void cut(){
 
-    char size[30];
-    char pos[30];
+    char size[30]={0};
+    char pos[30]={0};
     int lno;
     int strt;
     int sizei;
     char fb;
-    char address[200];
-    char text[10000];
-    char clip[10000];
+    char address[200]={0};
+    char text[10000]={0};
+    char clip[10000]={0};
     int cnt = 0;
     char c = 0;
     scanf("%c",&c);
@@ -1036,11 +1036,11 @@ void cut(){
 
 void paste(){
 
-    char pos[30];
+    char pos[30]={0};
     int lno;
     int strt;
-    char address[200];
-    char text[10000];
+    char address[200]={0};
+    char text[10000]={0};
     int cnt = 0;
     char c = 0;
     scanf("%c",&c);
@@ -1128,10 +1128,10 @@ void paste(){
 }
 
 int find(){
-    char address[200];
-    char text[10000];
-    char str[1000];
-    char file[30];
+    char address[200]={0};
+    char text[10000]={0};
+    char str[1000]={0};
+    char file[30]={0};
     int cnt = 0;
     char c = 0;
     int cond = 0;
@@ -2327,17 +2327,17 @@ int find(){
 }
 
 void replace(){
-    char address[200];
+    char address[200]={0};
     char str1[1000] = {0};
-    char str2[10000];
-    char st[30];
-    char file[30];
+    char str2[10000]={0};
+    char st[30]={0};
+    char file[30]={0};
     int cnt = 0;
     char c = 0;
     int cond = 0;
     int mode = 0;
-    char all[30];
-    char mod[30];
+    char all[30]={0};
+    char mod[30]={0};
 
 
     scanf("%c",&c);
@@ -2767,7 +2767,7 @@ void replace(){
 }
 
 int grepFunc(char address[] , char str[] , int mode,FILE* armm){
-    char row[1000];
+    char row[1000]={0};
     int index;
     int res=0;
     char text[100][100];
@@ -2900,10 +2900,10 @@ void grep(){
             address[i][j]=0;
         }
     }
-    char str1[1000];
-    char st[30];
-    char op[10];
-    char file[30];
+    char str1[1000]={0};
+    char st[30]={0};
+    char op[10]={0};
+    char file[30]={0};
     int cnt = 0;
     char c = 0;
     int mode = 0;
